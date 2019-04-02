@@ -1,0 +1,19 @@
+{
+  "env": "node",
+   "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "noImplicitAny": false,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "sourceMap": true,
+      "outDir": "lib",
+      "declaration": true
+  },
+  "exclude": [
+      "test",
+      "node_modules",
+      "lib"
+  ]
+}

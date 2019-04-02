@@ -1,0 +1,40 @@
+{
+  "name": "oidc",
+  "version": "0.0.0",
+  "description": "The oidc component of the solid server",
+  "engineStrict": true,
+  "engines": {
+    "node": ">= 8.9.0"
+  },
+  "main": "./lib/src/oidc.js",
+  "typings": "./lib/src/oidc.d.ts",
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/lodash": "4.14.123",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^11.13.0",
+    "@types/sinon": "^7.0.11",
+    "chai": "^4.2.0",
+    "mocha": "^6.0.2",
+    "rimraf": "~2.6.3",
+    "ts-node": "^8.0.3",
+    "ts-node-dev": "^1.0.0-pre.32",
+    "tslint": "~5.15.0",
+    "tslint-config-standard": "^8.0.1",
+    "typescript": "^3.4.1"
+  },
+  "author": "Jackson Morgan",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "oidc-provider": "^5.5.5"
+  },
+  "scripts": {
+    "clean": "rimraf coverage tmp",
+    "build": "tsc -p tsconfig.json",
+    "dev": "ts-node-dev --project \"tsconfig.json\" examples/express.ts",
+    "lint": "tslint -t stylish --project \"tsconfig.json\"",
+    "mocha": "mocha --require ts-node/register test/**/*.ts",
+    "test": "npm run lint && npm run mocha"
+  }
+}

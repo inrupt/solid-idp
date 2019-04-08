@@ -1,13 +1,13 @@
 {
-  "name": "oidc",
+  "name": "solid-idp",
   "version": "0.0.0",
   "description": "The oidc component of the solid server",
   "engineStrict": true,
   "engines": {
     "node": ">= 8.9.0"
   },
-  "main": "./lib/src/oidc.js",
-  "typings": "./lib/src/oidc.d.ts",
+  "main": "./lib/src/index.js",
+  "typings": "./lib/src/index.d.ts",
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/lodash": "4.14.123",
@@ -26,6 +26,7 @@
   "author": "Jackson Morgan",
   "license": "MIT",
   "dependencies": {
+    "@types/koa": "^2.0.48",
     "express": "^4.16.4",
     "oidc-provider": "^5.5.5"
   },

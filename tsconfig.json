@@ -1,19 +1,21 @@
 {
   "env": "node",
-   "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "noImplicitAny": false,
-      "removeComments": true,
-      "preserveConstEnums": true,
-      "sourceMap": true,
-      "outDir": "lib",
-      "declaration": true
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "outDir": "lib",
+    "declaration": true,
+    "esModuleInterop": true
   },
+  "typeRoots": ["./src/types"],
   "exclude": [
-      "test",
-      "node_modules",
-      "lib"
+    "test",
+    "node_modules",
+    "lib"
   ]
 }

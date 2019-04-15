@@ -1,6 +1,267 @@
 /** oidc-provider */
 declare module 'oidc-provider' {
-  import { Context } from 'koa'
+  import Koa, { Context } from 'koa'
+
+  namespace Provider {
+    /**
+     * Config Strings
+     */
+    type grantType = 'authorization_code' | 'implicit' | 'refresh_token';
+    type subjectType = 'public' | 'pairwise';
+    type signingAlgorithm = 'HS256' | 'HS384' | 'HS512' | 'RS256' | 'RS384' | 'RS512' | 'PS256' | 'PS384' | 'PS512' | 'ES256' | 'ES384' | 'ES512';
+    type encryptionAlgorithm = 'RSA-OAEP' | 'RSA1_5' | 'ECDH-ES' | 'ECDH-ES+A128KW' | 'ECDH-ES+A192KW' | 'ECDH-ES+A256KW' | 'A128KW' | 'A192KW' | 'A256KW' | 'A128GCMKW' | 'A192GCMKW' | 'A256GCMKW' | 'PBES2-HS256+A128KW' | 'PBES2-HS384+A192KW' | 'PBES2-HS512+A256KW';
+    type encryptionEnc = 'A128CBC-HS256' | 'A128GCM' | 'A192CBC-HS384' | 'A192GCM' | 'A256CBC-HS512' | 'A256GCM';
+    type tokenEndpointAuthMethod = 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | 'tls_client_auth' | 'self_signed_tls_client_auth';
+
+    /**
+     * Provider Config
+     */
+    export interface ProviderConfiguration {
+      features?: {
+        backchannelLogout?: boolean | {
+          enabled?: boolean
+        }
+        certificateBoundAccessTokens?: boolean | {
+          enabled?: boolean
+        }
+        claimsParameter?: boolean | {
+          enabled?: boolean
+        }
+        clientCredentials?: boolean | {
+          enabled?: boolean
+        }
+        devInteractions?: boolean | {
+          enabled?: boolean
+        }
+        deviceFlow?: {
+          enabled?: boolean
+          charset?: 'base-20' | 'digits'
+          mask?: string
+          deviceInfo?: (ctx: Context) => any
+          userCodeInputSource?: (ctx: Context, form: string, out?: any, err?: Error) => Promise<void>
+          userCodeConfirmSource?: (ctx: Context, form: string, client: any, devaiceInfo: any, userCode: string) => Promise<void>
+          successSource?: (ctx: Context) => Promise<void>
+        }
+        discovery?: boolean | {
+          enabled?: boolean
+        }
+        encryption?: boolean | {
+          enabled?: boolean
+        }
+        frontchannelLogout?: boolean | {
+          enabled?: boolean
+          logoutPendingSource?: (ctx: Context, frames: string[], postLogoutRedirectUri: string, timeout: number) => Promise<void>
+        }
+        introspection?: boolean | {
+          enabled?: boolean
+        }
+        jwtIntrospection?: boolean | {
+          enabled?: boolean
+        }
+        jwtResponseModes?: boolean | {
+          enabled?: boolean
+        }
+        registration?: boolean | {
+          enabled?: boolean
+          initialAccessToken?: boolean
+          policies?: {
+            [policyName: string]: ((ctx: Context, properties: Object) => Promise<void>) | ((ctx: Context, properties: Object) => void)
+          }
+          idFactory?: () => string
+          secretFactory?: () => string
+        }
+        registrationManagement?: boolean | {
+          enabled?: boolean,
+          rotateRegistrationAccessToken?: boolean
+        }
+        request?: boolean | {
+          enabled?: boolean
+        }
+        requestUri?: boolean | {
+          enabled?: boolean
+          requireUriRegistration?: boolean
+        }
+        resourceIndicators?: boolean | {
+          enabled?: boolean
+        }
+        revocation?: boolean | {
+          enabled?: boolean
+        }
+        sessionManagement?: boolean | {
+          enabled?: boolean
+          keepHeaders?: boolean
+        }
+        webMessageResponseMode?: boolean | {
+          enabled?: boolean
+        }
+      }
+      acrValues?: string[]
+      audiences?: (ctx: Context, sub: string, token: string, use: 'access_token' | 'client_credentials') => Promise<string[] | false | null | undefined | 0 | ''>
+      claims?: {
+        [claim: string]: string[]
+      }
+      clockTolerance?: number
+      conformIdTokenClaims?: boolean
+      cookies?: {
+        keys?: string[]
+        long?: {
+          secure?: boolean
+          signed?: boolean
+          httpOnly?: boolean
+          maxAge?: number
+          overwrite?: boolean
+        }
+        names?: {
+          session?: string
+          interaction?: string
+          resume?: string
+          state?: string
+        }
+        short?: {
+          secure?: boolean
+          signed?: boolean
+          httpOnly?: boolean
+          maxAge?: number
+          overwrite?: boolean
+        }
+      }
+      discovery?: {
+        [property: string]: any
+      }
+      dynamicScopes?: RegExp[]
+      expiresWithSession?: (ctx: Context, token: string) => boolean
+      extraClientMetadata?: {
+        properties?: string[]
+        validator?: (key: string, value: any, metadata: { [key: string]: any }) => void
+      }
+      extraParams?: string[] | Set<string>
+      findById?: (ctx: Context, sub: string, token: string) => Promise<{
+        accountId: string
+        claims: (use: 'id_token' | 'userinfo', scope: string, claims: Object, rejected: string[]) => Promise<any>
+      }>
+      formats?: {
+        extraJwtAccessTokenClaims?: (ctx: Context, token: string) => Promise<{ [claim: string]: string }>
+        AccessToken?: 'jwt' | 'opaque' | ((ctx: Context, token: string) => 'jwt' | 'opaque')
+      }
+      interactionUrl?: (ctx: Context, interaction?: string) => string | Promise<string>
+      introspectionEndpointAuthMethods?: string[]
+      issueRefreshToken?: (ctx: Context, client: any, code: string) => Promise<string>
+      logoutSource?: (ctx: Context, form: string) => Promise<void>
+      pairwiseIdentifier?: (ctx: Context, accountId: string, client: any) => Promise<string>
+      pkceMethods?: ('S256' | 'plain')[]
+      postLogoutRedirectUri?: (ctx: Context) => Promise<string>
+      renderError?: (ctx: Context, out: any, error: Error) => Promise<void>
+      responseTypes?: string[]
+      rotateRefreshToken?: boolean | ((ctx: Context) => Promise<any>)
+      routes?: {
+        authorization?: string
+        certificates?: string
+        check_session?: string
+        device_authorization?: string
+        end_session?: string
+        introspection?: string
+        registration?: string
+        revocation?: string
+        token?: string
+        userinfo?: string
+        code_verification?: string
+      }
+      scopes?: string[]
+      subjectTypes?: subjectType[]
+      tokenEndpointAuthMethods?: tokenEndpointAuthMethod[]
+      ttl?: {
+        AccessToken: number | ((ctx: Context, token: string, client: any) => Promise<number>)
+        AuthorizationCode: number | ((ctx: Context, token: string, client: any) => Promise<number>)
+        ClientCredentials: number | ((ctx: Context, token: string, client: any) => Promise<number>)
+        DeviceCode: number | ((ctx: Context, token: string, client: any) => Promise<number>)
+        IdToken: number | ((ctx: Context, token: string, client: any) => Promise<number>)
+        RefreshToken: number | ((ctx: Context, token: string, client: any) => Promise<number>)
+      }
+      uniqueness?: (ctx: Context, jti: string, expiresAt: number) => Promise<boolean>
+      whitelistedJWA?: {
+        authorizationEncryptionAlgValues?: encryptionAlgorithm[]
+        authorizationSigningAlgValues?: signingAlgorithm[]
+        idTokenEncryptionAlgValues?: encryptionAlgorithm[]
+        idTokenEncryptionEncValues?: encryptionEnc[]
+        idTokenSigningAlgValues?: ('none' | signingAlgorithm)[]
+        introspectionEncryptionAlgValues?: encryptionAlgorithm[]
+        introspectionEncryptionEncValues?: encryptionEnc[]
+        introspectionEndpointAuthSigningAlgValues?: signingAlgorithm[]
+        introspectionSigningAlgValues?: ('none' | signingAlgorithm)[]
+        requestObjectEncryptionAlgValues?: encryptionAlgorithm[]
+        requestObjectEncryptionEncValues?: encryptionEnc[]
+        requestObjectSigningAlgValues?: ('none' | signingAlgorithm)[]
+        revocationEndpointAuthSigningAlgValues?: signingAlgorithm[]
+        tokenEndpointAuthSigningAlgValues?: signingAlgorithm[]
+        userinfoEncryptionAlgValues?: encryptionAlgorithm[]
+        userinfoEncryptionEncValues?: encryptionEnc[]
+        userinfoSigningAlgValues?: ('none' | signingAlgorithm)[]
+      }
+    }
+
+    /**
+     * Adapter
+     */
+    interface Adapter {
+      name: string;
+      upsert(id: string, payload: any, expiresIn: number): Promise<void>;
+      find(id: string): Promise<any>;
+      findByUserCode?: (userCode: string) => Promise<any>;
+      consume(id: string): Promise<void>;
+      destroy(id: string): Promise<void>;
+      connect?: (provider: Provider) => Promise<void>;
+    }
+
+    /**
+     * Initialization Configuration
+     */
+    interface InitializationConfiguration {
+      clients?: ClientConfiguration[];
+      keystore?: { keys: Object[] };
+      adapter?: new (...args: any[]) => Adapter
+    }
+
+    /**
+     * Client Config
+     */
+    interface ClientConfiguration {
+      client_id: string;
+      redirect_uris: string[];
+      response_types?: string[];
+      grant_types?: grantType[];
+      application_type?: 'web' | 'native';
+      contacts?: string[];
+      client_name?: string;
+      logo_uri?: string;
+      client_uri?: string;
+      policy_uri?: string;
+      tos_uri?: string;
+      jwks_uri?: string;
+      jwks?: Object;
+      sector_identifier_uri?: string;
+      subject_type?: subjectType;
+      id_token_signed_response_alg?: signingAlgorithm;
+      id_token_encrypted_response_alg?: encryptionAlgorithm;
+      id_token_encrypted_response_enc?: encryptionEnc;
+      userinfo_signed_response_alg?: signingAlgorithm;
+      userinfo_encrypted_response_alg?: encryptionAlgorithm;
+      userinfo_encrypted_response_enc?: encryptionEnc;
+      request_object_signing_alg?: signingAlgorithm;
+      request_object_encryption_alg?: encryptionAlgorithm;
+      request_object_encryption_enc?: encryptionEnc;
+      token_endpoint_auth_method?: tokenEndpointAuthMethod;
+      token_endpoint_auth_signing_alg?: signingAlgorithm;
+      default_max_age?: number;
+      require_auth_time?: boolean;
+      default_acr_values?: string[];
+      initiate_login_uri?: string;
+      request_uris?: string[];
+    }
+
+    /**
+     * Interaction Detail
+     */
+  }
 
   /**
    * Default Provider Class
@@ -8,11 +269,12 @@ declare module 'oidc-provider' {
   class Provider {
     proxy: boolean;
     keys: string[];
-    constructor(issuer: string, config?: ProviderConfiguration);
+    app: Koa;
+    constructor(issuer: string, config?: Provider.ProviderConfiguration);
     cookieName(...args: any[]): void;
     httpOptions(...args: any[]): void;
-    initialize(...args: any[]): Promise<void>;
-    interactionDetails(...args: any[]): void;
+    initialize(config: Provider.InitializationConfiguration): Promise<void>;
+    interactionDetails(...args: any[]): Promise<any>;
     interactionFinished(...args: any[]): void;
     interactionResult(...args: any[]): void;
     listen(...args: any[]): void;
@@ -22,6 +284,7 @@ declare module 'oidc-provider' {
     setProviderSession(...args: any[]): void;
     urlFor(...args: any[]): void;
     use(...args: any[]): void;
+    callback(...args: any[]): void;
     static asKey(key: any, form: any, extras: any): any;
     static asKeyStore(ks: any): any;
     static createKeyStore(): any;
@@ -31,239 +294,6 @@ declare module 'oidc-provider' {
     static useGot(...args: any[]): void;
     static useRequest(...args: any[]): void;
     static usingDomains: boolean;
-  }
-
-  /**
-   * Config Strings
-   */
-  type responseType = 'code' | 'id_token' | 'id_token token' | 'code id_token' | 'code token' | 'code id_token token' | 'none';
-  type grantType = 'authorization_code' | 'implicit' | 'refresh_token';
-  type subjectType = 'public' | 'pairwise';
-  type signingAlgorithm = 'HS256' | 'HS384' | 'HS512' | 'RS256' | 'RS384' | 'RS512' | 'PS256' | 'PS384' | 'PS512' | 'ES256' | 'ES384' | 'ES512';
-  type encryptionAlgorithm = 'RSA-OAEP' | 'RSA1_5' | 'ECDH-ES' | 'ECDH-ES+A128KW' | 'ECDH-ES+A192KW' | 'ECDH-ES+A256KW' | 'A128KW' | 'A192KW' | 'A256KW' | 'A128GCMKW' | 'A192GCMKW' | 'A256GCMKW' | 'PBES2-HS256+A128KW' | 'PBES2-HS384+A192KW' | 'PBES2-HS512+A256KW';
-  type encryptionEnc = 'A128CBC-HS256' | 'A128GCM' | 'A192CBC-HS384' | 'A192GCM' | 'A256CBC-HS512' | 'A256GCM';
-  type tokenEndpointAuthMethod = 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | 'tls_client_auth' | 'self_signed_tls_client_auth';
-
-  /**
-   * Provider Config
-   */
-  interface ProviderConfiguration {
-    features?: {
-      backchannelLogout?: boolean | {
-        enabled?: boolean
-      }
-      certificateBoundAccessTokens?: boolean | {
-        enabled?: boolean
-      }
-      claimsParameter?: boolean | {
-        enabled?: boolean
-      }
-      clientCredentials?: boolean | {
-        enabled?: boolean
-      }
-      devInteractions?: boolean | {
-        enabled?: boolean
-      }
-      deviceFlow?: {
-        enabled?: boolean
-        charset?: 'base-20' | 'digits'
-        mask?: string
-        deviceInfo?: (ctx: Context) => any
-        userCodeInputSource?: (ctx: Context, form: string, out?: any, err?: Error) => Promise<void>
-        userCodeConfirmSource?: (ctx: Context, form: string, client: any, devaiceInfo: any, userCode: string) => Promise<void>
-        successSource?: (ctx: Context) => Promise<void>
-      }
-      discovery?: boolean | {
-        enabled?: boolean
-      }
-      encryption?: boolean | {
-        enabled?: boolean
-      }
-      frontchannelLogout?: boolean | {
-        enabled?: boolean
-        logoutPendingSource?: (ctx: Context, frames: string[], postLogoutRedirectUri: string, timeout: number) => Promise<void>
-      }
-      introspection?: boolean | {
-        enabled?: boolean
-      }
-      jwtIntrospection?: boolean | {
-        enabled?: boolean
-      }
-      jwtResponseModes?: boolean | {
-        enabled?: boolean
-      }
-      registration?: boolean | {
-        enabled?: boolean
-        initialAccessToken?: boolean
-        policies?: {
-          [policyName: string]: ((ctx: Context, properties: Object) => Promise<void>) | ((ctx: Context, properties: Object) => void)
-        }
-        idFactory?: () => string
-        secretFactory?: () => string
-      }
-      registrationManagement?: boolean | {
-        enabled?: boolean,
-        rotateRegistrationAccessToken?: boolean
-      }
-      request?: boolean | {
-        enabled?: boolean
-      }
-      requestUri?: boolean | {
-        enabled?: boolean
-        requireUriRegistration?: boolean
-      }
-      resourceIndicators?: boolean | {
-        enabled?: boolean
-      }
-      revocation?: boolean | {
-        enabled?: boolean
-      }
-      sessionManagement?: boolean | {
-        enabled?: boolean
-        keepHeaders?: boolean
-      }
-      webMessageResponseMode: boolean | {
-        enabled?: boolean
-      }
-    }
-    acrValues?: string[]
-    audiences?: (ctx: Context, sub: string, token: string, use: 'access_token' | 'client_credentials') => Promise<string[] | false | null | undefined | 0 | ''>
-    claims?: {
-      [claim: string]: string[]
-    }
-    clockTolerance?: number
-    conformIdTokenClaims?: boolean
-    cookies?: {
-      keys?: string[]
-      long?: {
-        secure?: boolean
-        signed?: boolean
-        httpOnly?: boolean
-        maxAge?: number
-        overwrite?: boolean
-      }
-      names?: {
-        session?: string
-        interaction?: string
-        resume?: string
-        state?: string
-      }
-      short?: {
-        secure?: boolean
-        signed?: boolean
-        httpOnly?: boolean
-        maxAge?: number
-        overwrite?: boolean
-      }
-    }
-    discovery?: {
-      [property: string]: any
-    }
-    dynamicScopes?: RegExp[]
-    expiresWithSession?: (ctx: Context, token: string) => boolean
-    extraClientMetadata?: {
-      properties?: string[]
-      validator?: (key: string, value: any, metadata: { [key: string]: any }) => void
-    }
-    extraParams?: string[] | Set<string>
-    findById?: (ctx: Context, sub: string, token: string) => Promise<{
-      accountId: string
-      claims: (use: 'id_token' | 'userinfo', scope: string, claims: Object, rejected: string[]) => Promise<any>
-    }>
-    formats?: {
-      extraJwtAccessTokenClaims: (ctx: Context, token: string) => Promise<{ [claim: string]: string }>
-      AccessToken: 'jwt' | 'opaque' | ((ctx: Context, token: string) => 'jwt' | 'opaque')
-    }
-    interactionUrl?: (ctx: Context, interaction: string) => Promise<string>
-    introspectionEndpointAuthMethods?: string[]
-    issueRefreshToken?: (ctx: Context, client: any, code: string) => Promise<string>
-    logoutSource?: (ctx: Context, form: string) => Promise<void>
-    pairwiseIdentifier?: (ctx: Context, accountId: string, client: any) => Promise<string>
-    pkceMethods?: ('S256' | 'plain')[]
-    postLogoutRedirectUri?: (ctx: Context) => Promise<string>
-    renderError?: (ctx: Context, out: any, error: Error) => Promise<void>
-    responseTypes?: responseType[]
-    rotateRefreshToken?: boolean | ((ctx: Context) => Promise<any>)
-    routes?: {
-      authorization?: string
-      certificates?: string
-      check_session?: string
-      device_authorization?: string
-      end_session?: string
-      introspection?: string
-      registration?: string
-      revocation?: string
-      token?: string
-      userinfo?: string
-      code_verification?: string
-    }
-    scopes?: string[]
-    subjectTypes?: subjectType[]
-    tokenEndpointAuthMethods?: tokenEndpointAuthMethod[]
-    ttl?: {
-      AccessToken: number | ((ctx: Context, token: string, client: any) => Promise<number>)
-      AuthorizationCode: number | ((ctx: Context, token: string, client: any) => Promise<number>)
-      ClientCredentials: number | ((ctx: Context, token: string, client: any) => Promise<number>)
-      DeviceCode: number | ((ctx: Context, token: string, client: any) => Promise<number>)
-      IdToken: number | ((ctx: Context, token: string, client: any) => Promise<number>)
-      RefreshToken: number | ((ctx: Context, token: string, client: any) => Promise<number>)
-    }
-    uniqueness?: (ctx: Context, jti: string, expiresAt: number) => Promise<boolean>
-    whitelistedJWA?: {
-      authorizationEncryptionAlgValues?: encryptionAlgorithm[]
-      authorizationSigningAlgValues?: signingAlgorithm[]
-      idTokenEncryptionAlgValues?: encryptionAlgorithm[]
-      idTokenEncryptionEncValues?: encryptionEnc[]
-      idTokenSigningAlgValues?: ('none' | signingAlgorithm)[]
-      introspectionEncryptionAlgValues?: encryptionAlgorithm[]
-      introspectionEncryptionEncValues?: encryptionEnc[]
-      introspectionEndpointAuthSigningAlgValues?: signingAlgorithm[]
-      introspectionSigningAlgValues?: ('none' | signingAlgorithm)[]
-      requestObjectEncryptionAlgValues?: encryptionAlgorithm[]
-      requestObjectEncryptionEncValues?: encryptionEnc[]
-      requestObjectSigningAlgValues?: ('none' | signingAlgorithm)[]
-      revocationEndpointAuthSigningAlgValues?: signingAlgorithm[]
-      tokenEndpointAuthSigningAlgValues?: signingAlgorithm[]
-      userinfoEncryptionAlgValues?: encryptionAlgorithm[]
-      userinfoEncryptionEncValues?: encryptionEnc[]
-      userinfoSigningAlgValues?: ('none' | signingAlgorithm)[]
-    }
-  }
-
-  /**
-   * Client Config
-   */
-  interface ClientConfiguration {
-    redirect_uris: string[];
-    response_types?: responseType[];
-    grant_types?: grantType[];
-    application_type?: 'web' | 'native';
-    contacts?: string[];
-    client_name?: string;
-    logo_uri?: string;
-    client_uri?: string;
-    policy_uri?: string;
-    tos_uri?: string;
-    jwks_uri?: string;
-    jwks: Object;
-    sector_identifier_uri: string;
-    subject_type: subjectType;
-    id_token_signed_response_alg?: signingAlgorithm;
-    id_token_encrypted_response_alg?: encryptionAlgorithm;
-    id_token_encrypted_response_enc?: encryptionEnc;
-    userinfo_signed_response_alg?: signingAlgorithm;
-    userinfo_encrypted_response_alg?: encryptionAlgorithm;
-    userinfo_encrypted_response_enc?: encryptionEnc;
-    request_object_signing_alg?: signingAlgorithm;
-    request_object_encryption_alg?: encryptionAlgorithm;
-    request_object_encryption_enc?: encryptionEnc;
-    token_endpoint_auth_method?: tokenEndpointAuthMethod;
-    token_endpoint_auth_signing_alg?: signingAlgorithm;
-    default_max_age: number;
-    require_auth_time: boolean;
-    default_acr_values: string[];
-    initiate_login_uri: string;
-    request_uris: string[];
   }
 
   export = Provider

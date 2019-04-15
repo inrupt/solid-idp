@@ -6,8 +6,8 @@
   "engines": {
     "node": ">= 8.9.0"
   },
-  "main": "./lib/src/index.js",
-  "typings": "./lib/src/index.d.ts",
+  "main": "./dist/src/index.js",
+  "typings": "./dist/src/index.d.ts",
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/lodash": "4.14.123",
@@ -26,8 +26,11 @@
   "author": "Jackson Morgan",
   "license": "MIT",
   "dependencies": {
+    "@koa/cors": "^2.2.3",
     "@types/koa": "^2.0.48",
+    "cors": "^2.8.5",
     "express": "^4.16.4",
+    "ioredis": "^4.9.0",
     "oidc-provider": "^5.5.5"
   },
   "scripts": {

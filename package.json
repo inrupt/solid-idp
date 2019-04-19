@@ -31,7 +31,7 @@
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "ioredis": "^4.9.0",
-    "oidc-provider": "^5.5.5"
+    "oidc-provider": "github:jaxoncreed/node-oidc-provider-fork"
   },
   "scripts": {
     "clean": "rimraf coverage tmp",

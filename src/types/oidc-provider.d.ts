@@ -65,9 +65,9 @@ declare module 'oidc-provider' {
           enabled?: boolean
           initialAccessToken?: boolean
           policies?: {
-            [policyName: string]: ((ctx: Context, properties: Object) => Promise<void>) | ((ctx: Context, properties: Object) => void)
+            [policyName: string]: ((ctx: Context, properties: { [key: string]: any }) => Promise<void>) | ((ctx: Context, properties: Object) => void)
           }
-          idFactory?: () => string
+          idFactory?: (ctx: Context) => string
           secretFactory?: () => string
         }
         registrationManagement?: boolean | {

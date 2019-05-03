@@ -4,11 +4,11 @@ import assert from 'assert'
 import _ from 'lodash'
 
 const USERS = {
-  '23121d3c-84df-44ac-b458-3d63a9a05497': {
+  'https://littlejackson.example.com/profile/card#me': {
     email: 'foo@example.com',
     email_verified: true
   },
-  'c2ac2b4a-2262-4e2f-847a-a40dd3c4dcd5': {
+  'https://otherjackson.example.com/profile/card#me': {
     email: 'bar@example.com',
     email_verified: false
   }
@@ -23,7 +23,7 @@ export default class Account {
 
   // claims() should return or resolve with an object with claims that are mapped 1:1 to
   // what your OP supports, oidc-provider will cherry-pick the requested ones automatically
-  claims () {
+  async claims () {
     return Object.assign({}, USERS[this.accountId], {
       sub: this.accountId
     })

@@ -15,7 +15,7 @@
     "@types/node": "^11.13.0",
     "@types/sinon": "^7.0.11",
     "chai": "^4.2.0",
-    "mocha": "^6.0.2",
+    "mocha": "^6.1.4",
     "rimraf": "~2.6.3",
     "ts-node": "^8.0.3",
     "ts-node-dev": "^1.0.0-pre.32",
@@ -28,15 +28,17 @@
   "dependencies": {
     "@koa/cors": "^2.2.3",
     "@types/koa": "^2.0.48",
-    "cors": "^2.8.5",
-    "express": "^4.16.4",
+    "@types/koa-router": "^7.0.40",
     "ioredis": "^4.9.0",
+    "koa-body": "^4.1.0",
+    "koa-router": "^7.4.0",
+    "koa-views": "^6.2.0",
     "oidc-provider": "github:jaxoncreed/node-oidc-provider-fork"
   },
   "scripts": {
     "clean": "rimraf coverage tmp",
     "build": "tsc -p tsconfig.json",
-    "dev": "ts-node-dev --project \"tsconfig.json\" examples/express.ts",
+    "dev": "ts-node-dev --project \"tsconfig.json\" examples/koa.ts",
     "lint": "tslint -t stylish --project \"tsconfig.json\"",
     "mocha": "mocha --require ts-node/register test/**/*.ts",
     "test": "npm run lint && npm run mocha"

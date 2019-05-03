@@ -140,7 +140,7 @@ declare module 'oidc-provider' {
         claims: (use: 'id_token' | 'userinfo', scope: string, claims: Object, rejected: string[]) => Promise<any>
       }>
       formats?: {
-        extraJwtAccessTokenClaims?: (ctx: Context, token: string) => Promise<{ [claim: string]: string }>
+        extraJwtAccessTokenClaims?: (ctx: Context, token: string) => Promise<{ [claim: string]: string }> | { [claim: string]: string }
         AccessToken?: 'jwt' | 'opaque' | ((ctx: Context, token: string) => 'jwt' | 'opaque')
       }
       interactionUrl?: (ctx: Context, interaction?: string) => string | Promise<string>
@@ -294,6 +294,7 @@ declare module 'oidc-provider' {
     static useGot(...args: any[]): void;
     static useRequest(...args: any[]): void;
     static usingDomains: boolean;
+    static errors: any;
   }
 
   export = Provider

@@ -10,4 +10,4 @@ async function init () {
   app.use(idpRouter.allowedMethods())
   app.listen(3000)
 }
-init()
+void init()

@@ -7,13 +7,18 @@ import bodyParser from 'koa-body'
 import Provider from '../core/SolidIdp'
 import RedisAdapter from './redisAdapter'
 import Account from './account'
+import { keystore } from './keystore'
 import { tokenEndpointAuthMethod, grantType } from 'oidc-provider'
+
+const DEFAULT_PATH_PREFIX = '/interaction/'
 
 export interface DefaultConfigurationConfigs {
   issuer: string
+  pathPrefix?: string
 }
 
 export default async function defaultConfiguration (config: DefaultConfigurationConfigs) {
+  const pathPrefix = config.pathPrefix || ''
   const oidc = new Provider(config.issuer, {
     findById: Account.findById,
     claims: {
@@ -21,13 +26,14 @@ export default async function defaultConfiguration (config: DefaultConfiguration
       email: ['email', 'email_verified']
     },
     interactionUrl (ctx) {
-      return `/interaction/${ctx.oidc.uuid}`
+      return `${pathPrefix}/interaction/${ctx.oidc.uuid}`
     },
     formats: {
       AccessToken: 'jwt'
     },
     features: {
       claimsParameter: true,
+      devInteractions: false,
       discovery: true,
       encryption: true,
       introspection: true,
@@ -35,10 +41,21 @@ export default async function defaultConfiguration (config: DefaultConfiguration
       request: true,
       revocation: true,
       sessionManagement: true
+    },
+    routes: {
+      authorization: `${pathPrefix}/auth`,
+      certificates: `${pathPrefix}/certs`,
+      check_session: `${pathPrefix}/session/check`,
+      device_authorization: `${pathPrefix}/device/auth`,
+      end_session: `${pathPrefix}/session/end`,
+      introspection: `${pathPrefix}/token/introspection`,
+      registration: `${pathPrefix}/reg`,
+      revocation: `${pathPrefix}/token/revocation`,
+      token: `${pathPrefix}/token`,
+      userinfo: `${pathPrefix}/me`,
+      code_verification: `${pathPrefix}/device`
     }
   })
-
-  const keystore = require('./keystore.json')
 
   await oidc.initialize({
     keystore,
@@ -53,10 +70,13 @@ export default async function defaultConfiguration (config: DefaultConfiguration
 
   const parse = bodyParser({})
 
-  router.all('*', views(path.join(__dirname, 'views'), { extension: 'ejs' }))
+  router.all(`${pathPrefix}/interaction/*`, views(path.join(__dirname, 'views'), { extension: 'ejs' }))
 
-  router.get('/interaction/:grant', async (ctx) => {
-    const details = await oidc.interactionDetails(ctx.req)
+  router.get(`${pathPrefix}/interaction/:grant`, async (ctx) => {
+    const details = {
+      ...await oidc.interactionDetails(ctx.req),
+      pathPrefix
+    }
 
     const view = (() => {
       switch (details.interaction.reason) {
@@ -71,7 +91,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     return ctx.render(view, { details })
   })
 
-  router.post('/interaction/:grant/confirm', parse, (ctx, next) => {
+  router.post(`${pathPrefix}/interaction/:grant/confirm`, parse, (ctx, next) => {
     oidc.interactionFinished(ctx.req, ctx.res, {
       consent: {
         // TODO: add offline_access checkbox to confirm too
@@ -79,7 +99,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     })
   })
 
-  router.post('/interaction/:grant/login', parse, async (ctx, next) => {
+  router.post(`${pathPrefix}/interaction/:grant/login`, parse, async (ctx, next) => {
     const account = await Account.authenticate(ctx.request.body.email, ctx.request.body.password)
 
     const result = {
@@ -98,7 +118,8 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     })
   })
 
-  router.all('*', (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))
+  router.all(`/.well-known/*`, (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))
+  router.all(`${pathPrefix}/*`, (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))
 
   return router
 }

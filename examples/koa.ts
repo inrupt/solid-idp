@@ -3,11 +3,12 @@ import { defaultConfiguration } from '../src'
 
 async function init () {
   const idpRouter = await defaultConfiguration({
-    issuer: 'https://api.swype.io'
+    issuer: 'https://api.swype.io',
+    pathPrefix: '/common'
   })
   const app = new Koa()
   app.use(idpRouter.routes())
   app.use(idpRouter.allowedMethods())
   app.listen(3000)
 }
-init()
+void init()

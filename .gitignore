@@ -10,6 +10,9 @@ auth/
 # Coverage
 coverage
 
+# Dist
+dist/
+
 # Transpiled files
 build/
 

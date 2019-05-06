@@ -4,7 +4,7 @@ import { defaultConfiguration } from '../src'
 async function init () {
   const idpRouter = await defaultConfiguration({
     issuer: 'https://api.swype.io',
-    pathPrefix: '/interaction/'
+    pathPrefix: '/common'
   })
   const app = new Koa()
   app.use(idpRouter.routes())

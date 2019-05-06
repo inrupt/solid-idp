@@ -114,7 +114,7 @@
   <body>
     <div class="login-card">
       <h1>Sign-in</h1>
-      <form autocomplete="off" action="/interaction/<%= details.uuid %>/login" method="post">
+      <form autocomplete="off" action="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/login" method="post">
         <input required type="email" name="email" placeholder="Enter an email" <% if (!details.params.login_hint) { %>autofocus="on"<% } else { %> value="<%= details.params.login_hint %>" <% } %>>
         <input required type="password" name="password" placeholder="and password" <% if (details.params.login_hint) { %>autofocus="on"<% } %>>
 

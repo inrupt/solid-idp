@@ -7,13 +7,24 @@ import bodyParser from 'koa-body'
 import Provider from '../core/SolidIdp'
 import RedisAdapter from './redisAdapter'
 import Account from './account'
+import { keystore } from './keystore'
 import { tokenEndpointAuthMethod, grantType } from 'oidc-provider'
+
+const DEFAULT_PATH_PREFIX = '/interaction/'
 
 export interface DefaultConfigurationConfigs {
   issuer: string
+  pathPrefix: string
 }
 
 export default async function defaultConfiguration (config: DefaultConfigurationConfigs) {
+  const pathPrefix = config.pathPrefix
+  if (pathPrefix.substring(0, 1) !== '/') {
+    throw new Error('config.pathPrefix should start with a slash, e.g. /interaction/')
+  }
+  if (pathPrefix.substr(-1) !== '/') {
+    throw new Error('config.pathPrefix should end with a slash, e.g. /interaction/')
+  }
   const oidc = new Provider(config.issuer, {
     findById: Account.findById,
     claims: {
@@ -21,7 +32,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
       email: ['email', 'email_verified']
     },
     interactionUrl (ctx) {
-      return `/interaction/${ctx.oidc.uuid}`
+      return `${pathPrefix}${ctx.oidc.uuid}`
     },
     formats: {
       AccessToken: 'jwt'
@@ -38,8 +49,6 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     }
   })
 
-  const keystore = require('./keystore.json')
-
   await oidc.initialize({
     keystore,
     clients: [],
@@ -53,9 +62,9 @@ export default async function defaultConfiguration (config: DefaultConfiguration
 
   const parse = bodyParser({})
 
-  router.all('*', views(path.join(__dirname, 'views'), { extension: 'ejs' }))
+  router.all(`${pathPrefix}*`, views(path.join(__dirname, 'views'), { extension: 'ejs' }))
 
-  router.get('/interaction/:grant', async (ctx) => {
+  router.get(`${pathPrefix}:grant`, async (ctx) => {
     const details = await oidc.interactionDetails(ctx.req)
 
     const view = (() => {
@@ -71,7 +80,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     return ctx.render(view, { details })
   })
 
-  router.post('/interaction/:grant/confirm', parse, (ctx, next) => {
+  router.post(`${pathPrefix}:grant/confirm`, parse, (ctx, next) => {
     oidc.interactionFinished(ctx.req, ctx.res, {
       consent: {
         // TODO: add offline_access checkbox to confirm too
@@ -79,7 +88,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     })
   })
 
-  router.post('/interaction/:grant/login', parse, async (ctx, next) => {
+  router.post(`${pathPrefix}:grant/login`, parse, async (ctx, next) => {
     const account = await Account.authenticate(ctx.request.body.email, ctx.request.body.password)
 
     const result = {
@@ -98,7 +107,8 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     })
   })
 
-  router.all('*', (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))
+  router.all(`/.well-known/*`, (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))
+  router.all(`${pathPrefix}*`, (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))
 
   return router
 }

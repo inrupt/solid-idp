@@ -6,8 +6,6 @@ import { Adapter } from 'oidc-provider'
 
 const REDIS_URL = process.env.REDIS_URL || ''
 
-const client = new Redis(REDIS_URL, { keyPrefix: 'oidc:' })
-
 const consumable = new Set([
   'AuthorizationCode',
   'RefreshToken',
@@ -28,9 +26,11 @@ function uidKeyFor (uid) {
 
 export default class RedisAdapter implements Adapter {
   name: string
+  client: Redis
 
   constructor (name: string) {
     this.name = name
+    this.client = new Redis(REDIS_URL, { keyPrefix: 'oidc:' })
   }
 
   async upsert (id, payload, expiresIn) {
@@ -38,7 +38,7 @@ export default class RedisAdapter implements Adapter {
     const store = consumable.has(this.name)
       ? { payload: JSON.stringify(payload) } : JSON.stringify(payload)
 
-    const multi = client.multi()
+    const multi = this.client.multi()
     multi[consumable.has(this.name) ? 'hmset' : 'set'](key, store)
 
     if (expiresIn) {
@@ -50,7 +50,7 @@ export default class RedisAdapter implements Adapter {
       multi.rpush(grantKey, key)
       // if you're seeing grant key lists growing out of acceptable proportions consider using LTRIM
       // here to trim the list to an appropriate length
-      const ttl = await client.ttl(grantKey)
+      const ttl = await this.client.ttl(grantKey)
       if (expiresIn > ttl) {
         multi.expire(grantKey, expiresIn)
       }
@@ -73,8 +73,8 @@ export default class RedisAdapter implements Adapter {
 
   async find (id) {
     const data = consumable.has(this.name)
-      ? await client.hgetall(this.key(id))
-      : await client.get(this.key(id))
+      ? await this.client.hgetall(this.key(id))
+      : await this.client.get(this.key(id))
 
     if (isEmpty(data)) {
       return undefined
@@ -91,30 +91,30 @@ export default class RedisAdapter implements Adapter {
   }
 
   async findByUid (uid) {
-    const id = await client.get(uidKeyFor(uid))
+    const id = await this.client.get(uidKeyFor(uid))
     return this.find(id)
   }
 
   async findByUserCode (userCode) {
-    const id = await client.get(userCodeKeyFor(userCode))
+    const id = await this.client.get(userCodeKeyFor(userCode))
     return this.find(id)
   }
 
   async destroy (id) {
     const key = this.key(id)
-    await client.del(key)
+    await this.client.del(key)
   }
 
   async revokeByGrantId (grantId) { // eslint-disable-line class-methods-use-this
-    const multi = client.multi()
-    const tokens = await client.lrange(grantKeyFor(grantId), 0, -1)
+    const multi = this.client.multi()
+    const tokens = await this.client.lrange(grantKeyFor(grantId), 0, -1)
     tokens.forEach(token => multi.del(token))
     multi.del(grantKeyFor(grantId))
     await multi.exec()
   }
 
   async consume (id) {
-    await client.hset(this.key(id), 'consumed', Math.floor(Date.now() / 1000))
+    await this.client.hset(this.key(id), 'consumed', Math.floor(Date.now() / 1000))
   }
 
   key (id) {

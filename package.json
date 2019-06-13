@@ -15,6 +15,7 @@
     "@types/node": "^11.13.0",
     "@types/sinon": "^7.0.11",
     "chai": "^4.2.0",
+    "copyfiles": "^2.1.0",
     "mocha": "^6.1.4",
     "rimraf": "~2.6.3",
     "ts-node": "^8.0.3",
@@ -37,10 +38,12 @@
   },
   "scripts": {
     "clean": "rimraf coverage tmp",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json & npm run copy-template",
+    "watch": "tsc --watch --preserveWatchOutput -p tsconfig.json",
     "dev": "ts-node-dev --project \"tsconfig.json\" examples/koa.ts",
     "lint": "tslint -t stylish --project \"tsconfig.json\"",
     "mocha": "mocha --require ts-node/register test/**/*.ts",
-    "test": "npm run lint && npm run mocha"
+    "test": "npm run lint && npm run mocha",
+    "copy-template": "copyfiles ./src/**/*.ejs ./dist"
   }
 }

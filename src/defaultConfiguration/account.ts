@@ -4,7 +4,7 @@ import assert from 'assert'
 import _ from 'lodash'
 
 const USERS = {
-  'https://littlejackson.example.com/profile/card#me': {
+  'https://jackson.solid.community/profile/card#me': {
     email: 'foo@example.com',
     email_verified: true
   },

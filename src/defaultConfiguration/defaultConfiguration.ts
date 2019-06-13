@@ -10,8 +10,6 @@ import Account from './account'
 import { keystore } from './keystore'
 import { tokenEndpointAuthMethod, grantType } from 'oidc-provider'
 
-const DEFAULT_PATH_PREFIX = '/interaction/'
-
 export interface DefaultConfigurationConfigs {
   issuer: string
   pathPrefix?: string
@@ -118,7 +116,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     })
   })
 
-  router.all(`/.well-known/*`, (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))
+  router.all(`/.well-known/openid-configuration`, (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))
   router.all(`${pathPrefix}/*`, (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))
 
   return router

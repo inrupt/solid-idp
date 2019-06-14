@@ -144,6 +144,7 @@ declare module 'oidc-provider' {
         AccessToken?: 'jwt' | 'opaque' | ((ctx: Context, token: string) => 'jwt' | 'opaque')
       }
       interactionUrl?: (ctx: Context, interaction?: string) => string | Promise<string>
+      interactionCheck?: (ctx:Context) => Promise<false | { error: string; error_description: string; reason: string; }>
       introspectionEndpointAuthMethods?: string[]
       issueRefreshToken?: (ctx: Context, client: any, code: string) => Promise<string>
       logoutSource?: (ctx: Context, form: string) => Promise<void>

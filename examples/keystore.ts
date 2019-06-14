@@ -1,3 +1,5 @@
+// This is a sample keystore. DO NOT USE THIS. Your idp should have it's own secret file.
+
 export const keystore = {
   'keys': [
     {

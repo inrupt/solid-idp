@@ -7,16 +7,30 @@ import bodyParser from 'koa-body'
 import Provider from '../core/SolidIdp'
 import RedisAdapter from './redisAdapter'
 import Account from './account'
-import { keystore } from './keystore'
-import { tokenEndpointAuthMethod, grantType } from 'oidc-provider'
+import { Context } from 'koa';
+import confirmInteractionHandler from './handlers/confirmInteraction.handler';
+import initialInteractionHandler from './handlers/initialInteraction.handler';
+import loginInteractionHandler from './handlers/loginInteraction.handler';
+import forgotPasswordInteractionHandler from './handlers/forgotPasswordInteraction.handler';
+import registerInteractionHandler from './handlers/registerInteraction.handler';
 
 export interface DefaultConfigurationConfigs {
+  keystore: any
   issuer: string
   pathPrefix?: string
 }
 
+const handlers: ((oidc: Provider) => Router)[] = [
+  initialInteractionHandler,
+  confirmInteractionHandler,
+  loginInteractionHandler,
+  forgotPasswordInteractionHandler,
+  registerInteractionHandler
+];
+
 export default async function defaultConfiguration (config: DefaultConfigurationConfigs) {
   const pathPrefix = config.pathPrefix || ''
+
   const oidc = new Provider(config.issuer, {
     findById: Account.findById,
     claims: {
@@ -56,7 +70,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
   })
 
   await oidc.initialize({
-    keystore,
+    keystore: config.keystore,
     clients: [],
     adapter: RedisAdapter
   })
@@ -70,51 +84,24 @@ export default async function defaultConfiguration (config: DefaultConfiguration
 
   router.all(`${pathPrefix}/interaction/*`, views(path.join(__dirname, 'views'), { extension: 'ejs' }))
 
-  router.get(`${pathPrefix}/interaction/:grant`, async (ctx) => {
-    const details = {
-      ...await oidc.interactionDetails(ctx.req),
-      pathPrefix
-    }
-
-    const view = (() => {
-      switch (details.interaction.reason) {
-        case 'consent_prompt':
-        case 'client_not_authorized':
-          return 'interaction'
-        default:
-          return 'login'
-      }
-    })()
-
-    return ctx.render(view, { details })
+  const handlerMiddlewares = [];
+  handlers.forEach(handler => {
+    const handlerRoute = handler(oidc)
+    handlerMiddlewares.push(handlerRoute.routes())
+    handlerMiddlewares.push(handlerRoute.allowedMethods())
   })
 
-  router.post(`${pathPrefix}/interaction/:grant/confirm`, parse, (ctx, next) => {
-    oidc.interactionFinished(ctx.req, ctx.res, {
-      consent: {
-        // TODO: add offline_access checkbox to confirm too
-      }
-    })
-  })
-
-  router.post(`${pathPrefix}/interaction/:grant/login`, parse, async (ctx, next) => {
-    const account = await Account.authenticate(ctx.request.body.email, ctx.request.body.password)
-
-    const result = {
-      login: {
-        account: account.accountId,
-        remember: !!ctx.request.body.remember,
-        ts: Math.floor(Date.now() / 1000)
+  router.use(`${pathPrefix}/interaction/:grant`,
+      parse,
+      async (ctx, next) => {
+        ctx.state.details = {
+          ...await oidc.interactionDetails(ctx.req),
+          pathPrefix
+        }
+        await next()
       },
-      consent: {
-        rejectedScopes: ctx.request.body.remember ? [] : ['offline_access']
-      }
-    }
-
-    return oidc.interactionFinished(ctx.req, ctx.res, result, {
-      mergeWithLastSubmission: false
-    })
-  })
+      ...handlerMiddlewares
+    )
 
   router.all(`/.well-known/openid-configuration`, (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))
   router.all(`${pathPrefix}/*`, (ctx, next) => oidc.callback(ctx.req, ctx.res, ctx.next))

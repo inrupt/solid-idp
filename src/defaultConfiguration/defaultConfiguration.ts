@@ -7,12 +7,11 @@ import bodyParser from 'koa-body'
 import Provider from '../core/SolidIdp'
 import RedisAdapter from './redisAdapter'
 import Account from './account'
-import { Context } from 'koa';
-import confirmInteractionHandler from './handlers/confirmInteraction.handler';
-import initialInteractionHandler from './handlers/initialInteraction.handler';
-import loginInteractionHandler from './handlers/loginInteraction.handler';
-import forgotPasswordInteractionHandler from './handlers/forgotPasswordInteraction.handler';
-import registerInteractionHandler from './handlers/registerInteraction.handler';
+import confirmInteractionHandler from './handlers/confirmInteraction.handler'
+import initialInteractionHandler from './handlers/initialInteraction.handler'
+import loginInteractionHandler from './handlers/loginInteraction.handler'
+import forgotPasswordInteractionHandler from './handlers/forgotPasswordInteraction.handler'
+import registerInteractionHandler from './handlers/registerInteraction.handler'
 
 export interface DefaultConfigurationConfigs {
   keystore: any
@@ -26,7 +25,7 @@ const handlers: ((oidc: Provider) => Router)[] = [
   loginInteractionHandler,
   forgotPasswordInteractionHandler,
   registerInteractionHandler
-];
+]
 
 export default async function defaultConfiguration (config: DefaultConfigurationConfigs) {
   const pathPrefix = config.pathPrefix || ''
@@ -45,7 +44,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     },
     features: {
       claimsParameter: true,
-      devInteractions: false,
+      devInteractions: true,
       discovery: true,
       encryption: true,
       introspection: true,
@@ -84,7 +83,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
 
   router.all(`${pathPrefix}/interaction/*`, views(path.join(__dirname, 'views'), { extension: 'ejs' }))
 
-  const handlerMiddlewares = [];
+  const handlerMiddlewares = []
   handlers.forEach(handler => {
     const handlerRoute = handler(oidc)
     handlerMiddlewares.push(handlerRoute.routes())

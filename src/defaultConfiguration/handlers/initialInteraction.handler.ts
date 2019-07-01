@@ -1,7 +1,7 @@
 import Provider from '../../core/SolidIdp'
 import Router from 'koa-router'
 
-export default function initialInteractionHandler(oidc: Provider): Router {
+export default function initialInteractionHandler (oidc: Provider): Router {
   const router = new Router()
 
   router.get('/', async (ctx) => {

@@ -7,21 +7,21 @@
   <body>
     <div class="login-card">
       <h1>Register</h1>
-      <form autocomplete="off" action="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/forgotpassword" method="post">
+      <form autocomplete="off" action="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/register" method="post">
 
         <label>Email:</label>
         <input required type="email" name="email" placeholder="tim@example.com" />
 
         <label>Password:</label>
-        <input required type="password" name="password" placeholder="tim@example.com" />
+        <input required type="password" name="password" placeholder="" />
 
         <label>Confirm Password:</label>
-        <input required type="password" name="confirmPassword" placeholder="tim@example.com" />
+        <input required type="password" name="confirmPassword" placeholder="" />
 
         <label>WebId (username):</label>
-        <input required type="text" name="webId" placeholder="tim@example.com" />
+        <input required type="text" name="webId" placeholder="tim" />
 
-        <button type="submit" name="submit" class="login login-submit">Send Recovery Email</button>
+        <button type="submit" name="submit" class="login login-submit">Create Identity</button>
       </form>
 
       <a href="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/login">[ Log In ]</a>

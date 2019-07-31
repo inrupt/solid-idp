@@ -1,6 +1,7 @@
 import Provider from '../../core/SolidIdp'
 import Router from 'koa-router'
 import Account from '../account'
+import { Context } from 'koa';
 
 export default function loginInteractionHandler(oidc: Provider): Router {
   const router = new Router()
@@ -10,23 +11,27 @@ export default function loginInteractionHandler(oidc: Provider): Router {
   })
 
   router.post(`/login`, async (ctx, next) => {
-    const account = await Account.authenticate(ctx.request.body.email, ctx.request.body.password)
-
-    const result = {
-      login: {
-        account: account.accountId,
-        remember: !!ctx.request.body.remember,
-        ts: Math.floor(Date.now() / 1000)
-      },
-      consent: {
-        rejectedScopes: ctx.request.body.remember ? [] : ['offline_access']
-      }
-    }
-
-    return oidc.interactionFinished(ctx.req, ctx.res, result, {
-      mergeWithLastSubmission: false
-    })
+    return await login(ctx.request.body.email, ctx.request.body.password, ctx, oidc)
   })
 
   return router
+}
+
+export async function login(email: string, password: string, ctx: Context, oidc: Provider) {
+  const account = await Account.authenticate(email, password)
+
+  const result = {
+    login: {
+      account: account.accountId,
+      remember: !!ctx.request.body.remember,
+      ts: Math.floor(Date.now() / 1000)
+    },
+    consent: {
+      rejectedScopes: ctx.request.body.remember ? [] : ['offline_access']
+    }
+  }
+
+  return oidc.interactionFinished(ctx.req, ctx.res, result, {
+    mergeWithLastSubmission: false
+  })
 }

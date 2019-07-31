@@ -17,9 +17,10 @@ export interface DefaultConfigurationConfigs {
   keystore: any
   issuer: string
   pathPrefix?: string
+  webIdFromUsername: (username: string) => Promise<string>
 }
 
-const handlers: ((oidc: Provider) => Router)[] = [
+const handlers: ((oidc: Provider, config?: DefaultConfigurationConfigs) => Router)[] = [
   initialInteractionHandler,
   confirmInteractionHandler,
   loginInteractionHandler,
@@ -85,7 +86,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
 
   const handlerMiddlewares = []
   handlers.forEach(handler => {
-    const handlerRoute = handler(oidc)
+    const handlerRoute = handler(oidc, config)
     handlerMiddlewares.push(handlerRoute.routes())
     handlerMiddlewares.push(handlerRoute.allowedMethods())
   })

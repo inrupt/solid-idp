@@ -2,36 +2,31 @@
 
 import assert from 'assert'
 import _ from 'lodash'
+import Redis from 'ioredis'
+import bcrypt from 'bcrypt'
 
-const USERS = {
-  'https://jackson.solid.community/profile/card#me': {
-    email: 'foo@example.com',
-    email_verified: true
-  },
-  'https://otherjackson.example.com/profile/card#me': {
-    email: 'bar@example.com',
-    email_verified: false
-  }
-}
+const REDIS_URL = process.env.REDIS_URL || ''
+const SALT_ROUNDS = 10
+
+const client: Redis = new Redis(REDIS_URL, { keyPrfix: 'user' })
 
 export default class Account {
   accountId: string
 
   constructor (id) {
-    this.accountId = id // the property named accountId is important to oidc-provider
+    this.accountId = id
   }
 
-  // claims() should return or resolve with an object with claims that are mapped 1:1 to
-  // what your OP supports, oidc-provider will cherry-pick the requested ones automatically
   async claims () {
-    return Object.assign({}, USERS[this.accountId], {
+    return {
       sub: this.accountId
-    })
+    }
   }
 
   static async findById (ctx, id) {
     // this is usually a db lookup, so let's just wrap the thing in a promise, oidc-provider expects
     // one
+    // return new Account(id)
     return new Account(id)
   }
 
@@ -39,10 +34,26 @@ export default class Account {
     assert(password, 'password must be provided')
     assert(email, 'email must be provided')
     const lowercased = String(email).toLowerCase()
-    const id = _.findKey(USERS, { email: lowercased })
-    assert(id, 'invalid credentials provided')
+    const user = JSON.parse(await client.get(this.key(email)))
+    console.log(user)
+    assert(user, "User does not exist")
+    assert(await bcrypt.compare(password, user.password), "Incorrect Password")
+    return new this(user.webID)
+  }
 
-    // this is usually a db lookup, so let's just wrap the thing in a promise
-    return new this(id)
+  static async create (email: string, password: string, webID: string): Promise<void> {
+    const webIDTaken = await client.get(`taken:${webID}`)
+    assert(!webIDTaken, 'User already exists.')
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+    await client.set(`taken:${webID}`, 'true')
+    await client.set(this.key(email), JSON.stringify({
+      webID,
+      email,
+      password: hashedPassword
+    }))
+  }
+
+  static key (name: string): string {
+    return `user:${name}`
   }
 }

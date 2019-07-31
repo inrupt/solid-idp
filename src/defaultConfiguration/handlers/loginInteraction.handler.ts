@@ -6,7 +6,7 @@ export default function loginInteractionHandler(oidc: Provider): Router {
   const router = new Router()
 
   router.get(`/login`, async (ctx, next) => {
-    return ctx.render('login', ctx.state.details)
+    return ctx.render('login', {})
   })
 
   router.post(`/login`, async (ctx, next) => {

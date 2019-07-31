@@ -7,6 +7,24 @@
   <body>
     <div class="login-card">
       <h1>Register</h1>
+      <form autocomplete="off" action="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/forgotpassword" method="post">
+
+        <label>Email:</label>
+        <input required type="email" name="email" placeholder="tim@example.com" />
+
+        <label>Password:</label>
+        <input required type="password" name="password" placeholder="tim@example.com" />
+
+        <label>Confirm Password:</label>
+        <input required type="password" name="confirmPassword" placeholder="tim@example.com" />
+
+        <label>WebId (username):</label>
+        <input required type="text" name="webId" placeholder="tim@example.com" />
+
+        <button type="submit" name="submit" class="login login-submit">Send Recovery Email</button>
+      </form>
+
+      <a href="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/login">[ Log In ]</a>
     </div>
     <div class="login-card">
       <div class="grant-debug">

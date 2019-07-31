@@ -7,7 +7,7 @@ const PORT = 3000
 async function init () {
   const idpRouter = await defaultConfiguration({
     issuer: 'https://api.swype.io',
-    pathPrefix: '/common',
+    pathPrefix: '',
     keystore
   })
   const app = new Koa()

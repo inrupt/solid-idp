@@ -11,14 +11,14 @@ export default function loginInteractionHandler(oidc: Provider): Router {
   })
 
   router.post(`/login`, async (ctx, next) => {
-    return await login(ctx.request.body.email, ctx.request.body.password, ctx, oidc)
+    return await login(ctx.request.body.username, ctx.request.body.password, ctx, oidc)
   })
 
   return router
 }
 
-export async function login(email: string, password: string, ctx: Context, oidc: Provider) {
-  const account = await Account.authenticate(email, password)
+export async function login(username: string, password: string, ctx: Context, oidc: Provider) {
+  const account = await Account.authenticate(username, password)
 
   const result = {
     login: {

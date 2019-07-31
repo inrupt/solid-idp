@@ -24,8 +24,8 @@
               <form autocomplete="off" action="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/login" method="post">
 
                 <div class="input-wrap">
-                  <label>Email:</label>
-                  <input required type="email" name="email" placeholder="tim@example.com" <% if (!details.params.login_hint) { %>autofocus="on"<% } else { %> value="<%= details.params.login_hint %>" <% } %>>
+                  <label>Username:</label>
+                  <input required type="username" name="username" placeholder="tim" <% if (!details.params.login_hint) { %>autofocus="on"<% } else { %> value="<%= details.params.login_hint %>" <% } %>>
                 </div>
 
                 <div class="input-wrap">

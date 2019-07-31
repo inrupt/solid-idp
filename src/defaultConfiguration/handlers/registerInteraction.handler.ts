@@ -14,13 +14,14 @@ export default function registerInteractionHandler(oidc: Provider, config: Defau
 
   router.post(`/register`, async (ctx, next) => {
     const email = String(ctx.request.body.email).toLowerCase()
-    const webId = await config.webIdFromUsername(String(ctx.request.body.webId).toLowerCase())
-    const password = String(ctx.request.body)
+    const username = String(ctx.request.body.webId).toLowerCase()
+    const webId = await config.webIdFromUsername(username)
+    const password = String(ctx.request.body.password)
     assert(email, "Email required")
     assert(password, "Password required")
-    assert(webId, 'WebID required')
-    await Account.create(email, password, webId)
-    return login(email, password, ctx, oidc)
+    assert(username, 'Username required')
+    await Account.create(email, password, username, webId)
+    return login(username, password, ctx, oidc)
   })
 
   return router

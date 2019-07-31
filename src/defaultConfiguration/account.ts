@@ -24,29 +24,25 @@ export default class Account {
   }
 
   static async findById (ctx, id) {
-    // this is usually a db lookup, so let's just wrap the thing in a promise, oidc-provider expects
-    // one
-    // return new Account(id)
     return new Account(id)
   }
 
-  static async authenticate (email, password) {
-    assert(password, 'password must be provided')
-    assert(email, 'email must be provided')
-    const lowercased = String(email).toLowerCase()
-    const user = JSON.parse(await client.get(this.key(email)))
-    console.log(user)
+  static async authenticate (username, password) {
+    assert(password, 'Password must be provided')
+    assert(username, 'Username must be provided')
+    const lowercased = String(username).toLowerCase()
+    const user = JSON.parse(await client.get(this.key(username)))
     assert(user, "User does not exist")
     assert(await bcrypt.compare(password, user.password), "Incorrect Password")
     return new this(user.webID)
   }
 
-  static async create (email: string, password: string, webID: string): Promise<void> {
-    const webIDTaken = await client.get(`taken:${webID}`)
-    assert(!webIDTaken, 'User already exists.')
+  static async create (email: string, password: string, username: string, webID: string): Promise<void> {
+    const curUser = await client.get(this.key(username))
+    assert(!curUser, 'User already exists.')
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
-    await client.set(`taken:${webID}`, 'true')
-    await client.set(this.key(email), JSON.stringify({
+    await client.set(this.key(username), JSON.stringify({
+      username,
       webID,
       email,
       password: hashedPassword

@@ -89,7 +89,14 @@ export default async function defaultConfiguration (config: DefaultConfiguration
 
   const resetPasswordRouter = resetPasswordHandler(oidc, config)
   router.use(`${pathPrefix}/resetpassword`, parse, resetPasswordRouter.routes(), resetPasswordRouter.allowedMethods())
-  router.use()
+
+  router.use(async (ctx, next) => {
+    try {
+      await next()
+    } catch (err) {
+      return ctx.render('error', { message: err.message })
+    }
+  })
 
   const handlerMiddlewares = []
   handlers.forEach(handler => {
@@ -101,12 +108,10 @@ export default async function defaultConfiguration (config: DefaultConfiguration
   router.use(`${pathPrefix}/interaction/:grant`,
       parse,
       async (ctx, next) => {
-        console.log('invalid')
         ctx.state.details = {
           ...await oidc.interactionDetails(ctx.req),
           pathPrefix
         }
-        console.log('but then here')
         await next()
       },
       ...handlerMiddlewares

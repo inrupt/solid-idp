@@ -5,7 +5,6 @@ import Account from '../account';
 import { DefaultConfigurationConfigs } from '../defaultConfiguration';
 
 export default function forgotPasswordInteractionHandler(oidc: Provider, config: DefaultConfigurationConfigs): Router {
-  console.log(config.mailConfiguration)
   const mailTransporter = nodemailer.createTransport(config.mailConfiguration)
 
 
@@ -28,7 +27,9 @@ export default function forgotPasswordInteractionHandler(oidc: Provider, config:
         <p>Click <a href="${passwordResetLink}">here</a> to reset your password.</p>
       `
     })
-    console.log(mailInfo)
+    return ctx.render('message', {
+      message: `An email has been sent with a password reset link.`
+    })
   })
 
   return router

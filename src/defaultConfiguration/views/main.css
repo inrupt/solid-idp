@@ -3,6 +3,7 @@
 /* inrupt Additional Specific Color Variables */
 /* Typography */
 @import url("https://fonts.googleapis.com/css?family=Raleway:400,400i,700,700i|Roboto:300,300i,400,400i,700,700i");
+@import url("https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
 /* Typography  Variables */
 /* additional Variables */
 /* Reset */
@@ -886,7 +887,7 @@ link,
   -webkit-appearance: none;
   -moz-appearance: none;
   font-family: "Raleway", "Roboto", sans-serif;
-  color: #354866;
+  color: #449df5;
   border: 1px solid #DAE0E6;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -942,7 +943,6 @@ link,
   -moz-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  color: #ffffff;
   text-transform: uppercase;
   font-size: 12px;
   letter-spacing: 1.07px;
@@ -1082,7 +1082,7 @@ button {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  color: #354866;
+  color: #449df5;
   border: 1px solid #DAE0E6;
   cursor: pointer;
   font-size: .8em;
@@ -1196,6 +1196,8 @@ textarea {
   textarea[disabled] {
     pointer-events: none; }
   input[type="text"],
+  input[type="password"],
+  input[type="email"],
   textarea[type="text"] {
     border: 1px solid #DAE0E6;
     font-size: 0.8em;
@@ -1203,15 +1205,21 @@ textarea {
     text-indent: 0.75em;
     border-radius: 4px; }
     input[type="text"]:active, input[type="text"][active], input[type="text"]:focus,
+    input[type="email"]:active, input[type="email"][active], input[type="email"]:focus,
+    input[type="password"]:active, input[type="password"][active], input[type="password"]:focus,
     textarea[type="text"]:active,
     textarea[type="text"][active],
     textarea[type="text"]:focus {
       border-color: #449DF5; }
     input[type="text"]:invalid, input[type="text"][invalid],
+    input[type="email"]:invalid, input[type="eamil"][invalid],
+    input[type="password"]:invalid, input[type="password"][invalid],
     textarea[type="text"]:invalid,
     textarea[type="text"][invalid] {
       border-color: #D0021B; }
     input[type="text"]::placeholder,
+    input[type="email"]::placeholder,
+    input[type="password"]::placeholder,
     textarea[type="text"]::placeholder {
       color: rgba(0, 0, 0, 0.3); }
 
@@ -1226,7 +1234,6 @@ textarea {
 .input-wrap {
   display: flex;
   flex-wrap: wrap;
-  max-width: 95%;
   margin: 1em 0; }
   .input-wrap--inline {
     flex-wrap: nowrap !important;
@@ -1234,12 +1241,14 @@ textarea {
     .input-wrap--inline label {
       margin-right: .5em;
       line-height: 1;
+      font-family: "Raleway", "Roboto", sans-serif;
       height: auto; }
       .input-wrap--inline label span.icon, .input-wrap--inline label i.icon {
         font-size: 1rem; }
   .input-wrap label {
     font-size: .8em;
     color: #354866;
+    font-family: "Raleway", "Roboto", sans-serif;
     padding-bottom: 0.3em; }
   .input-wrap input, .input-wrap select, .input-wrap textarea {
     appearance: none;
@@ -2898,16 +2907,43 @@ body, html {
   box-sizing: border-box;
   box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px 0px;
   min-width: 310px;
-  min-height: 403px;
   position: relative;
   text-align: center;
   background: rgb(255, 255, 255);
   border-radius: 4px;
   margin: auto;
   padding: 40px;
+  padding-top: 24px;
 }
 
 .panel-body {
   display: grid;
   flex-direction: column;
+}
+
+.space-between {
+  display: flex;
+  justify-content: space-between;
+}
+
+hr {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  border-color: #DAE0E6;
+  filter: opacity(95%)
+}
+
+.link {
+  color: #449df5;
+  font-family: Raleway;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .75px;
+  line-height: 14px;
+  text-align: center;
+  padding: 0;
+  text-decoration: none;
 }

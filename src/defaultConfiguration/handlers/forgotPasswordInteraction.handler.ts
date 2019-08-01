@@ -1,7 +1,14 @@
 import Provider from '../../core/SolidIdp'
 import Router from 'koa-router'
+import nodemailer from 'nodemailer'
+import Account from '../account';
+import { DefaultConfigurationConfigs } from '../defaultConfiguration';
 
-export default function forgotPasswordInteractionHandler(oidc: Provider): Router {
+export default function forgotPasswordInteractionHandler(oidc: Provider, config: DefaultConfigurationConfigs): Router {
+  console.log(config.mailConfiguration)
+  const mailTransporter = nodemailer.createTransport(config.mailConfiguration)
+
+
   const router = new Router()
 
   router.get(`/forgotpassword`, async (ctx, next) => {
@@ -9,11 +16,23 @@ export default function forgotPasswordInteractionHandler(oidc: Provider): Router
   })
 
   router.post(`/forgotpassword`, async (ctx, next) => {
-
+    const { email, uuid } = await Account.generateForgotPassword(ctx.request.body.username)
+    const passwordResetLink = `${config.issuer}/${config.pathPrefix ? `${config.pathPrefix}/` : ''}interaction/${ctx.state.details.uuid}/resetpassword/${uuid}`
+    const mailInfo = await mailTransporter.sendMail({
+      from: `"Solid" <${config.mailConfiguration.auth.user}>`,
+      to: email,
+      subject: 'Reset your password',
+      text: `Reset your password at ${passwordResetLink}`,
+      html: `
+        <h1>Reset your password</h1>
+        <p>Click <a href="${passwordResetLink}">here</a> to reset your password.</p>
+      `
+    })
+    console.log(mailInfo)
   })
 
-  router.get(`/resetpassword`, async (ctx, next) => {
-    return ctx.render('resetPassword', ctx.state.details)
+  router.get(`/resetpassword/:uuid`, async (ctx, next) => {
+    return ctx.render('resetPassword', { })
   })
 
   router.post('/resetPassword', async (ctx, next) => {

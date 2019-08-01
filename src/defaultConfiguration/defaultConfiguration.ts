@@ -4,6 +4,7 @@ import path from 'path'
 import Router from 'koa-router'
 import views from 'koa-views'
 import bodyParser from 'koa-body'
+import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import Provider from '../core/SolidIdp'
 import RedisAdapter from './redisAdapter'
 import Account from './account'
@@ -17,6 +18,7 @@ export interface DefaultConfigurationConfigs {
   keystore: any
   issuer: string
   pathPrefix?: string
+  mailConfiguration: SMTPTransport.Options
   webIdFromUsername: (username: string) => Promise<string>
 }
 

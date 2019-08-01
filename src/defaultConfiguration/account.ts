@@ -4,6 +4,7 @@ import assert from 'assert'
 import _ from 'lodash'
 import Redis from 'ioredis'
 import bcrypt from 'bcrypt'
+import uuid from 'uuid'
 
 const REDIS_URL = process.env.REDIS_URL || ''
 const SALT_ROUNDS = 10
@@ -51,5 +52,24 @@ export default class Account {
 
   static key (name: string): string {
     return `user:${name}`
+  }
+
+  static async generateForgotPassword(username): Promise<{ email: string, uuid: string }> {
+    const user = JSON.parse(await client.get(this.key(username)))
+    assert(user, 'The username does not exist.')
+    const forgotPasswordUUID = uuid.v4()
+    await client.set(this.forgotPasswordKey(forgotPasswordUUID), username, 'EX', 60 * 60 * 24)
+    return {
+      email: user.email,
+      uuid: forgotPasswordUUID
+    }
+  }
+
+  static async getForgotPassword() {
+
+  }
+
+  static forgotPasswordKey(name) {
+    return `forgotPassword:${name}`
   }
 }

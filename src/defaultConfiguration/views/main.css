@@ -2946,4 +2946,6 @@ hr {
   text-align: center;
   padding: 0;
   text-decoration: none;
+  background-color: transparent;
+  border: none;
 }

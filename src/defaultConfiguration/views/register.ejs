@@ -33,7 +33,7 @@
 
                 <div class="input-wrap">
                   <label>Username:</label>
-                  <input type="text" name="webId" autofocus="on" />
+                  <input type="text" name="webId" autofocus="on" <% if (prefilled.username) { %> value="<%= prefilled.username %>" <% } %> />
                 </div>
 
                 <div class="input-wrap">
@@ -48,7 +48,7 @@
 
                 <div class="input-wrap">
                   <label>Email (for password recovery):</label>
-                  <input type="email" name="email" />
+                  <input type="email" name="email" <% if (prefilled.email) { %> value="<%= prefilled.email %>" <% } %> />
                 </div>
 
                 <button type="submit" name="submit" class="ids-link-filled">Create Identity</button>

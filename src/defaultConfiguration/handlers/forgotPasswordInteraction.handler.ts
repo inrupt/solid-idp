@@ -2,6 +2,7 @@ import Provider from '../../core/SolidIdp'
 import Router from 'koa-router'
 import nodemailer from 'nodemailer'
 import Account from '../account';
+import assert from 'assert'
 import { DefaultConfigurationConfigs } from '../defaultConfiguration';
 
 export default function forgotPasswordInteractionHandler(oidc: Provider, config: DefaultConfigurationConfigs): Router {
@@ -16,6 +17,8 @@ export default function forgotPasswordInteractionHandler(oidc: Provider, config:
 
   router.post(`/forgotpassword`, async (ctx, next) => {
     try {
+      const username = ctx.request.body.username
+      assert(username, 'Username required')
       const { email, uuid } = await Account.generateForgotPassword(ctx.request.body.username)
       const passwordResetLink = `${config.issuer}/${config.pathPrefix ? `${config.pathPrefix}/` : ''}resetpassword/${uuid}`
       const mailInfo = await mailTransporter.sendMail({
@@ -28,8 +31,8 @@ export default function forgotPasswordInteractionHandler(oidc: Provider, config:
           <p>Click <a href="${passwordResetLink}">here</a> to reset your password.</p>
         `
       })
-      return ctx.render('message', {
-        message: `An email has been sent with a password reset link.`
+      return ctx.render('emailSent', {
+        username
       })
     } catch(err) {
       return ctx.render('forgotPassword', {

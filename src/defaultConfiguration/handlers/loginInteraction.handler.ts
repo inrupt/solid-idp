@@ -1,4 +1,5 @@
 import Provider from '../../core/SolidIdp'
+import assert from 'assert'
 import Router from 'koa-router'
 import Account from '../account'
 import { Context } from 'koa';
@@ -7,14 +8,24 @@ export default function loginInteractionHandler(oidc: Provider): Router {
   const router = new Router()
 
   router.get(`/login`, async (ctx, next) => {
-    return ctx.render('login', { errorMessage: '' })
+    return ctx.render('login', {
+      errorMessage: '',
+      prefilled: {}
+    })
   })
 
   router.post(`/login`, async (ctx, next) => {
     try {
+      assert(ctx.request.body.username, 'Username is required')
+      assert(ctx.request.body.password, 'Password is required')
       return await login(ctx.request.body.username, ctx.request.body.password, ctx, oidc)
     } catch (err) {
-      return ctx.render('login', { errorMessage: err.message })
+      return ctx.render('login', {
+        errorMessage: err.message,
+        prefilled: {
+          username: ctx.request.body.username
+        }
+      })
     }
   })
 

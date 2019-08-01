@@ -33,7 +33,7 @@
 
                 <div class="input-wrap">
                   <label>Username:</label>
-                  <input type="text" name="username" autofocus="on">
+                  <input type="text" name="username" autofocus="on" <% if (prefilled.username) { %> value="<%= prefilled.username %>" <% } %>>
                 </div>
 
                 <div class="input-wrap">
@@ -59,46 +59,5 @@
         </div>
       </section>
     </div>
-  </body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <!-- <div class="login-card">
-      <h1>Sign-in</h1>
-      <form autocomplete="off" action="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/login" method="post">
-        <input required type="email" name="email" placeholder="Enter an email" <% if (!details.params.login_hint) { %>autofocus="on"<% } else { %> value="<%= details.params.login_hint %>" <% } %>>
-        <input required type="password" name="password" placeholder="and password" <% if (details.params.login_hint) { %>autofocus="on"<% } %>>
-
-        <label><input type="checkbox" name="remember" value="yes" checked="yes">Stay signed in</label>
-
-        <button type="submit" name="submit" class="login login-submit">Sign-in</button>
-      </form>
-      <div class="login-help">
-        <a href="<%= details.returnTo %>">[ Cancel ]</a>
-        <a href="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/register">[ Register ]</a>
-      </div>
-    </div>
-    <div class="login-card">
-      <div class="grant-debug">
-        <%- JSON.stringify(details.interaction, null, 4) %>
-      </div>
-      <div class="grant-debug">
-        <%- JSON.stringify(details.params, null, 4) %>
-      </div>
-    </div> -->
   </body>
 </html>

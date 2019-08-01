@@ -50,6 +50,12 @@ export default class Account {
     }))
   }
 
+  static async changePassword(username, password): Promise<void> {
+    const user = JSON.parse(await client.get(this.key(username)))
+    user.password = await bcrypt.hash(password, SALT_ROUNDS)
+    await client.set(this.key(username), JSON.stringify(user))
+  }
+
   static key (name: string): string {
     return `user:${name}`
   }
@@ -65,8 +71,12 @@ export default class Account {
     }
   }
 
-  static async getForgotPassword() {
+  static async getForgotPassword(uuid: string): Promise<string> {
+    return await client.get(this.forgotPasswordKey(uuid))
+  }
 
+  static async deleteForgotPassword(uuid: string): Promise<void> {
+    await client.del(this.forgotPasswordKey(uuid))
   }
 
   static forgotPasswordKey(name) {

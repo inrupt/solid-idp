@@ -13,6 +13,7 @@ import initialInteractionHandler from './handlers/initialInteraction.handler'
 import loginInteractionHandler from './handlers/loginInteraction.handler'
 import forgotPasswordInteractionHandler from './handlers/forgotPasswordInteraction.handler'
 import registerInteractionHandler from './handlers/registerInteraction.handler'
+import resetPasswordHandler from './handlers/resetPassword.handler'
 
 export interface DefaultConfigurationConfigs {
   keystore: any
@@ -84,7 +85,11 @@ export default async function defaultConfiguration (config: DefaultConfiguration
 
   const parse = bodyParser({})
 
-  router.all(`${pathPrefix}/interaction/*`, views(path.join(__dirname, 'views'), { extension: 'ejs' }))
+  router.all(`${pathPrefix}/*`, views(path.join(__dirname, 'views'), { extension: 'ejs' }))
+
+  const resetPasswordRouter = resetPasswordHandler(oidc, config)
+  router.use(`${pathPrefix}/resetpassword`, parse, resetPasswordRouter.routes(), resetPasswordRouter.allowedMethods())
+  router.use()
 
   const handlerMiddlewares = []
   handlers.forEach(handler => {
@@ -96,10 +101,12 @@ export default async function defaultConfiguration (config: DefaultConfiguration
   router.use(`${pathPrefix}/interaction/:grant`,
       parse,
       async (ctx, next) => {
+        console.log('invalid')
         ctx.state.details = {
           ...await oidc.interactionDetails(ctx.req),
           pathPrefix
         }
+        console.log('but then here')
         await next()
       },
       ...handlerMiddlewares

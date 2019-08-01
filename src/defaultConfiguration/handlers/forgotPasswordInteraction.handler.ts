@@ -17,7 +17,7 @@ export default function forgotPasswordInteractionHandler(oidc: Provider, config:
 
   router.post(`/forgotpassword`, async (ctx, next) => {
     const { email, uuid } = await Account.generateForgotPassword(ctx.request.body.username)
-    const passwordResetLink = `${config.issuer}/${config.pathPrefix ? `${config.pathPrefix}/` : ''}interaction/${ctx.state.details.uuid}/resetpassword/${uuid}`
+    const passwordResetLink = `${config.issuer}/${config.pathPrefix ? `${config.pathPrefix}/` : ''}resetpassword/${uuid}`
     const mailInfo = await mailTransporter.sendMail({
       from: `"Solid" <${config.mailConfiguration.auth.user}>`,
       to: email,
@@ -29,14 +29,6 @@ export default function forgotPasswordInteractionHandler(oidc: Provider, config:
       `
     })
     console.log(mailInfo)
-  })
-
-  router.get(`/resetpassword/:uuid`, async (ctx, next) => {
-    return ctx.render('resetPassword', { })
-  })
-
-  router.post('/resetPassword', async (ctx, next) => {
-    
   })
 
   return router

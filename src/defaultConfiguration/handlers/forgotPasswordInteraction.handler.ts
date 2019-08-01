@@ -11,25 +11,31 @@ export default function forgotPasswordInteractionHandler(oidc: Provider, config:
   const router = new Router()
 
   router.get(`/forgotpassword`, async (ctx, next) => {
-    return ctx.render('forgotPassword', ctx.state.details)
+    return ctx.render('forgotPassword', { errorMessage: '' })
   })
 
   router.post(`/forgotpassword`, async (ctx, next) => {
-    const { email, uuid } = await Account.generateForgotPassword(ctx.request.body.username)
-    const passwordResetLink = `${config.issuer}/${config.pathPrefix ? `${config.pathPrefix}/` : ''}resetpassword/${uuid}`
-    const mailInfo = await mailTransporter.sendMail({
-      from: `"Solid" <${config.mailConfiguration.auth.user}>`,
-      to: email,
-      subject: 'Reset your password',
-      text: `Reset your password at ${passwordResetLink}`,
-      html: `
-        <h1>Reset your password</h1>
-        <p>Click <a href="${passwordResetLink}">here</a> to reset your password.</p>
-      `
-    })
-    return ctx.render('message', {
-      message: `An email has been sent with a password reset link.`
-    })
+    try {
+      const { email, uuid } = await Account.generateForgotPassword(ctx.request.body.username)
+      const passwordResetLink = `${config.issuer}/${config.pathPrefix ? `${config.pathPrefix}/` : ''}resetpassword/${uuid}`
+      const mailInfo = await mailTransporter.sendMail({
+        from: `"Solid" <${config.mailConfiguration.auth.user}>`,
+        to: email,
+        subject: 'Reset your password',
+        text: `Reset your password at ${passwordResetLink}`,
+        html: `
+          <h1>Reset your password</h1>
+          <p>Click <a href="${passwordResetLink}">here</a> to reset your password.</p>
+        `
+      })
+      return ctx.render('message', {
+        message: `An email has been sent with a password reset link.`
+      })
+    } catch(err) {
+      return ctx.render('forgotPassword', {
+        errorMessage: err.message
+      })
+    }
   })
 
   return router

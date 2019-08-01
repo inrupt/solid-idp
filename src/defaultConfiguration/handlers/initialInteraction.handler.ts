@@ -16,7 +16,7 @@ export default function initialInteractionHandler (oidc: Provider): Router {
       }
     })()
 
-    return ctx.render(view, { details })
+    return ctx.render(view, { details, errorMessage: '' })
   })
 
   return router

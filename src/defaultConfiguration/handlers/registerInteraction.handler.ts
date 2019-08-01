@@ -9,19 +9,25 @@ export default function registerInteractionHandler(oidc: Provider, config: Defau
   const router = new Router()
 
   router.get(`/register`, async (ctx, next) => {
-    return ctx.render('register', ctx.state.details)
+    return ctx.render('register', { errorMessage: '' })
   })
 
   router.post(`/register`, async (ctx, next) => {
-    const email = String(ctx.request.body.email).toLowerCase()
-    const username = String(ctx.request.body.webId).toLowerCase()
-    const webId = await config.webIdFromUsername(username)
-    const password = String(ctx.request.body.password)
-    assert(email, "Email required")
-    assert(password, "Password required")
-    assert(username, 'Username required')
-    await Account.create(email, password, username, webId)
-    return login(username, password, ctx, oidc)
+    try {
+      const email = String(ctx.request.body.email).toLowerCase()
+      const username = String(ctx.request.body.webId).toLowerCase()
+      const webId = await config.webIdFromUsername(username)
+      const password = String(ctx.request.body.password)
+      assert(email, "Email required")
+      assert(password, "Password required")
+      assert(username, 'Username required')
+      await Account.create(email, password, username, webId)
+      return login(username, password, ctx, oidc)
+    } catch (err) {
+      return ctx.render('register', {
+        errorMessage: err.message
+      })
+    }
   })
 
   return router

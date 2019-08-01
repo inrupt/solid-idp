@@ -23,6 +23,14 @@
             <div class="panel-body">
               <form autocomplete="off" action="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/register" method="post">
 
+                <%if (errorMessage) { %>
+                  <div class="input-wrap">
+                    <label style="color: #D0021B">
+                      <%= errorMessage %>
+                    </label>
+                  </div>
+                <% } %>
+
                 <div class="input-wrap">
                   <label>Username:</label>
                   <input type="text" name="webId" autofocus="on" />

@@ -7,11 +7,15 @@ export default function loginInteractionHandler(oidc: Provider): Router {
   const router = new Router()
 
   router.get(`/login`, async (ctx, next) => {
-    return ctx.render('login', {})
+    return ctx.render('login', { errorMessage: '' })
   })
 
   router.post(`/login`, async (ctx, next) => {
-    return await login(ctx.request.body.username, ctx.request.body.password, ctx, oidc)
+    try {
+      return await login(ctx.request.body.username, ctx.request.body.password, ctx, oidc)
+    } catch (err) {
+      return ctx.render('login', { errorMessage: err.message })
+    }
   })
 
   return router

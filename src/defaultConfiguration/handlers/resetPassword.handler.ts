@@ -24,12 +24,21 @@ export default function resetPasswordHandler(oidc: Provider, config: DefaultConf
       assert(ctx.request.body && ctx.request.body.password, 'Password must be provided.')
       const forgotPasswordUUID = ctx.params.uuid
       const password = ctx.request.body.password
+      const confirmPassword = ctx.request.body.confirmPassword
+      assert(password, 'Password is required')
+      assert(confirmPassword, 'Password confirmation is required')
+      assert(password === confirmPassword, 'Passwords do not match')
       const username = await Account.getForgotPassword(forgotPasswordUUID)
       assert(username, 'This reset password link is no longer valid.')
       await Account.changePassword(username, password)
       await Account.deleteForgotPassword(forgotPasswordUUID)
+      return ctx.render('message', {
+        message: 'Password was successfully reset'
+      })
     } catch (err) {
       return ctx.render('resetPassword', {
+        pathPrefix: config.pathPrefix || '',
+        forgotPasswordUUID: ctx.params.uuid,
         errorMessage: err.message
       })
     }

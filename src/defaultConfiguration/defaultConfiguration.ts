@@ -87,9 +87,6 @@ export default async function defaultConfiguration (config: DefaultConfiguration
 
   router.all(`${pathPrefix}/*`, views(path.join(__dirname, 'views'), { extension: 'ejs' }))
 
-  const resetPasswordRouter = resetPasswordHandler(oidc, config)
-  router.use(`${pathPrefix}/resetpassword`, parse, resetPasswordRouter.routes(), resetPasswordRouter.allowedMethods())
-
   router.use(async (ctx, next) => {
     try {
       await next()
@@ -97,6 +94,9 @@ export default async function defaultConfiguration (config: DefaultConfiguration
       return ctx.render('error', { message: err.message })
     }
   })
+
+  const resetPasswordRouter = resetPasswordHandler(oidc, config)
+  router.use(`${pathPrefix}/resetpassword`, parse, resetPasswordRouter.routes(), resetPasswordRouter.allowedMethods())
 
   const handlerMiddlewares = []
   handlers.forEach(handler => {

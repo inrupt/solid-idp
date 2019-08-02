@@ -35,9 +35,13 @@ export default function loginInteractionHandler(oidc: Provider): Router {
 export async function login(username: string, password: string, ctx: Context, oidc: Provider) {
   const account = await Account.authenticate(username, password)
 
+  return await getTokenAndLogin(account.accountId, ctx, oidc)
+}
+
+export async function getTokenAndLogin(accountId: string, ctx: Context, oidc: Provider) {
   const result = {
     login: {
-      account: account.accountId,
+      account: accountId,
       remember: !!ctx.request.body.remember,
       ts: Math.floor(Date.now() / 1000)
     },

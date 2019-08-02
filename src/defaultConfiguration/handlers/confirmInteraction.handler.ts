@@ -1,5 +1,6 @@
 import Provider from '../../core/SolidIdp'
 import Router from 'koa-router'
+import { getTokenAndLogin } from './loginInteraction.handler';
 
 export default function confirmInteractionHandler(oidc: Provider): Router {
   const router = new Router()
@@ -8,12 +9,8 @@ export default function confirmInteractionHandler(oidc: Provider): Router {
     return ctx.render('confirm', ctx.state.details)
   })
 
-  router.post(`/confirm`, (ctx, next) => {
-    oidc.interactionFinished(ctx.req, ctx.res, {
-      consent: {
-        // TODO: add offline_access checkbox to confirm too
-      }
-    })
+  router.post(`/confirm`, async (ctx, next) => {
+    return await getTokenAndLogin(ctx.state.details.accountId, ctx, oidc)
   })
 
   return router

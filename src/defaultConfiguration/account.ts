@@ -2,47 +2,84 @@
 
 import assert from 'assert'
 import _ from 'lodash'
+import Redis from 'ioredis'
+import bcrypt from 'bcrypt'
+import uuid from 'uuid'
 
-const USERS = {
-  'https://jackson.solid.community/profile/card#me': {
-    email: 'foo@example.com',
-    email_verified: true
-  },
-  'https://otherjackson.example.com/profile/card#me': {
-    email: 'bar@example.com',
-    email_verified: false
-  }
-}
+const REDIS_URL = process.env.REDIS_URL || ''
+const SALT_ROUNDS = 10
+
+const client: Redis = new Redis(REDIS_URL, { keyPrfix: 'user' })
 
 export default class Account {
   accountId: string
 
   constructor (id) {
-    this.accountId = id // the property named accountId is important to oidc-provider
+    this.accountId = id
   }
 
-  // claims() should return or resolve with an object with claims that are mapped 1:1 to
-  // what your OP supports, oidc-provider will cherry-pick the requested ones automatically
   async claims () {
-    return Object.assign({}, USERS[this.accountId], {
+    return {
       sub: this.accountId
-    })
+    }
   }
 
   static async findById (ctx, id) {
-    // this is usually a db lookup, so let's just wrap the thing in a promise, oidc-provider expects
-    // one
     return new Account(id)
   }
 
-  static async authenticate (email, password) {
-    assert(password, 'password must be provided')
-    assert(email, 'email must be provided')
-    const lowercased = String(email).toLowerCase()
-    const id = _.findKey(USERS, { email: lowercased })
-    assert(id, 'invalid credentials provided')
+  static async authenticate (username, password) {
+    assert(password, 'Password must be provided')
+    assert(username, 'Username must be provided')
+    const lowercased = String(username).toLowerCase()
+    const user = JSON.parse(await client.get(this.key(username)))
+    assert(user, "User does not exist")
+    assert(await bcrypt.compare(password, user.password), "Incorrect Password")
+    return new this(user.webID)
+  }
 
-    // this is usually a db lookup, so let's just wrap the thing in a promise
-    return new this(id)
+  static async create (email: string, password: string, username: string, webID: string): Promise<void> {
+    const curUser = await client.get(this.key(username))
+    assert(!curUser, 'User already exists.')
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+    await client.set(this.key(username), JSON.stringify({
+      username,
+      webID,
+      email,
+      password: hashedPassword
+    }))
+  }
+
+  static async changePassword(username, password): Promise<void> {
+    const user = JSON.parse(await client.get(this.key(username)))
+    user.password = await bcrypt.hash(password, SALT_ROUNDS)
+    await client.set(this.key(username), JSON.stringify(user))
+  }
+
+  static key (name: string): string {
+    return `user:${name}`
+  }
+
+  static async generateForgotPassword(username): Promise<{ email: string, uuid: string }> {
+    const user = JSON.parse(await client.get(this.key(username)))
+    assert(user, 'The username does not exist.')
+    const forgotPasswordUUID = uuid.v4()
+    await client.set(this.forgotPasswordKey(forgotPasswordUUID), username, 'EX', 60 * 60 * 24)
+    return {
+      email: user.email,
+      uuid: forgotPasswordUUID
+    }
+  }
+
+  static async getForgotPassword(uuid: string): Promise<string> {
+    return await client.get(this.forgotPasswordKey(uuid))
+  }
+
+  static async deleteForgotPassword(uuid: string): Promise<void> {
+    await client.del(this.forgotPasswordKey(uuid))
+  }
+
+  static forgotPasswordKey(name) {
+    return `forgotPassword:${name}`
   }
 }

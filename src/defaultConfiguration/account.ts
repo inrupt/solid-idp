@@ -3,7 +3,7 @@
 import assert from 'assert'
 import _ from 'lodash'
 import Redis from 'ioredis'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import uuid from 'uuid'
 
 const REDIS_URL = process.env.REDIS_URL || ''

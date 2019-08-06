@@ -33,7 +33,7 @@ export default class RedisAdapter implements Adapter {
     this.client = new Redis(REDIS_URL, { keyPrefix: 'oidc:' })
   }
 
-  async upsert (id, payload, expiresIn) {
+  async upsert (id: string, payload, expiresIn: number): Promise<void> {
     const key = this.key(id)
     const store = consumable.has(this.name)
       ? { payload: JSON.stringify(payload) } : JSON.stringify(payload)

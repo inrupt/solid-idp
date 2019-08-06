@@ -3,6 +3,7 @@ import assert from 'assert'
 import Router from 'koa-router'
 import Account from '../account'
 import { Context } from 'koa';
+import { InteractionResult } from 'oidc-provider';
 
 export default function loginInteractionHandler(oidc: Provider): Router {
   const router = new Router()
@@ -39,7 +40,7 @@ export async function login(username: string, password: string, ctx: Context, oi
 }
 
 export async function getTokenAndLogin(accountId: string, ctx: Context, oidc: Provider) {
-  const result = {
+  const result: InteractionResult = {
     login: {
       account: accountId,
       remember: !!ctx.request.body.remember,
@@ -50,7 +51,5 @@ export async function getTokenAndLogin(accountId: string, ctx: Context, oidc: Pr
     }
   }
 
-  return oidc.interactionFinished(ctx.req, ctx.res, result, {
-    mergeWithLastSubmission: false
-  })
+  return oidc.interactionFinished(ctx.req, ctx.res, result)
 }

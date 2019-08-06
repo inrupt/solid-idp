@@ -35,31 +35,27 @@ export default async function defaultConfiguration (config: DefaultConfiguration
   const pathPrefix = config.pathPrefix || ''
 
   const oidc = new Provider(config.issuer, {
-    findById: Account.findById,
+    adapter: RedisAdapter,
+    findAccount: Account.findById,
+    jwks: config.keystore,
     claims: {
       openid: ['sub'],
       email: ['email', 'email_verified']
     },
-    interactionUrl (ctx) {
-      return `${pathPrefix}/interaction/${ctx.oidc.uuid}`
+    interactions: {
+      url: async (ctx) => {
+        return `${pathPrefix}/interaction/${ctx.oidc.uuid}`
+      },
     },
     formats: {
       AccessToken: 'jwt'
     },
     features: {
-      claimsParameter: true,
-      devInteractions: true,
-      discovery: true,
-      encryption: true,
-      introspection: true,
-      registration: true,
-      request: true,
-      revocation: true,
-      sessionManagement: true
+      devInteractions: { enabled: false }
     },
     routes: {
       authorization: `${pathPrefix}/auth`,
-      certificates: `${pathPrefix}/certs`,
+      jwks: `${pathPrefix}/certs`,
       check_session: `${pathPrefix}/session/check`,
       device_authorization: `${pathPrefix}/device/auth`,
       end_session: `${pathPrefix}/session/end`,
@@ -72,11 +68,6 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     }
   })
 
-  await oidc.initialize({
-    keystore: config.keystore,
-    clients: [],
-    adapter: RedisAdapter
-  })
   oidc.proxy = true
   // TODO: re-enable this for cookie security
   // oidc.keys = process.env.SECURE_KEY.split(',')

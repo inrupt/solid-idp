@@ -5,16 +5,18 @@ import _ from 'lodash'
 import Redis from 'ioredis'
 import bcrypt from 'bcryptjs'
 import uuid from 'uuid'
+import { Context } from 'koa';
+import { Account } from 'oidc-provider';
 
 const REDIS_URL = process.env.REDIS_URL || ''
 const SALT_ROUNDS = 10
 
 const client: Redis = new Redis(REDIS_URL, { keyPrfix: 'user' })
 
-export default class Account {
+export default class SolidAccount implements Account {
   accountId: string
 
-  constructor (id) {
+  constructor (id: string) {
     this.accountId = id
   }
 
@@ -24,8 +26,8 @@ export default class Account {
     }
   }
 
-  static async findById (ctx, id) {
-    return new Account(id)
+  static async findById (ctx: Context, sub: string) {
+    return new SolidAccount(sub)
   }
 
   static async authenticate (username, password) {

@@ -6,10 +6,10 @@ export default function initialInteractionHandler (oidc: Provider): Router {
 
   router.get('/', async (ctx) => {
     const details = ctx.state.details
+    console.log(details)
     const view = (() => {
-      switch (details.interaction.reason) {
-        case 'consent_prompt':
-        case 'client_not_authorized':
+      switch (details.prompt.name) {
+        case 'consent':
           return 'confirm'
         default:
           return 'login'

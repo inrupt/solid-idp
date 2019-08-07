@@ -1,5 +1,6 @@
 // Modified code from https://github.com/panva/node-oidc-provider-example/blob/43436a969a7bd589fea7e8ba83caa3fd4bc61854/03-oidc-views-accounts/index.js
 
+import logger from 'debug'
 import path from 'path'
 import Router from 'koa-router'
 import views from 'koa-views'
@@ -14,6 +15,8 @@ import loginInteractionHandler from './handlers/loginInteraction.handler'
 import forgotPasswordInteractionHandler from './handlers/forgotPasswordInteraction.handler'
 import registerInteractionHandler from './handlers/registerInteraction.handler'
 import resetPasswordHandler from './handlers/resetPassword.handler'
+
+const debug = logger('defaultConfiguration')
 
 export interface DefaultConfigurationConfigs {
   keystore: any
@@ -44,7 +47,8 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     },
     interactions: {
       url: async (ctx) => {
-        return `${pathPrefix}/interaction/${ctx.oidc.uuid}`
+        console.log()
+        return `${pathPrefix}/interaction/${ctx.oidc.uid}`
       },
     },
     formats: {
@@ -82,6 +86,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     try {
       await next()
     } catch (err) {
+      debug(err)
       return ctx.render('error', { message: err.message })
     }
   })

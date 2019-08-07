@@ -18,7 +18,15 @@ export default class SolidIdp extends Provider {
         requestObjectSigningAlgValues: ['none', 'HS256', 'RS256', 'PS256', 'ES256']
       },
       extraParams: ['key'],
-      clientBasedCORS: async () => true
+      clientBasedCORS: async () => true,
+      responseTypes: [
+        'id_token token'
+      ],
+      scopes: [
+        'openid',
+        'offline_access',
+        'profile'
+      ]
     })
     this.use(cors())
   }

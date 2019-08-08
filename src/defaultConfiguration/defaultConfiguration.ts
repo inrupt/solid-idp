@@ -47,7 +47,6 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     },
     interactions: {
       url: async (ctx) => {
-        console.log()
         return `${pathPrefix}/interaction/${ctx.oidc.uid}`
       },
     },

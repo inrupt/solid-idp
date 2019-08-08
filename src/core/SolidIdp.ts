@@ -12,6 +12,12 @@ export default class SolidIdp extends Provider {
 
         registration: {
           enabled: true
+        },
+        request: {
+          enabled: true
+        },
+        dPoP: {
+          enabled: true
         }
       },
       whitelistedJWA: {

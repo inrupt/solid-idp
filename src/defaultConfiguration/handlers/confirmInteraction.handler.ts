@@ -10,7 +10,7 @@ export default function confirmInteractionHandler(oidc: Provider): Router {
   })
 
   router.post(`/confirm`, async (ctx, next) => {
-    return await getTokenAndLogin(ctx.state.details.accountId, ctx, oidc)
+    return await getTokenAndLogin(ctx.state.details.session.accountId, ctx, oidc)
   })
 
   return router

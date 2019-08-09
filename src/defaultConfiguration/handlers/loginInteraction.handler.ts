@@ -1,12 +1,13 @@
 import Provider from '../../core/SolidIdp'
 import assert from 'assert'
 import Router from 'koa-router'
-import Account from '../account'
 import { Context } from 'koa';
 import { InteractionResult } from 'oidc-provider';
+import { DefaultConfigurationConfigs, DefaultAccountAdapter } from '../defaultConfiguration';
 
-export default function loginInteractionHandler(oidc: Provider): Router {
+export default function loginInteractionHandler(oidc: Provider, config: DefaultConfigurationConfigs): Router {
   const router = new Router()
+  const accountAdapter = new config.storage.accountAdapter()
 
   router.get(`/login`, async (ctx, next) => {
     return ctx.render('login', {
@@ -19,7 +20,7 @@ export default function loginInteractionHandler(oidc: Provider): Router {
     try {
       assert(ctx.request.body.username, 'Username is required')
       assert(ctx.request.body.password, 'Password is required')
-      return await login(ctx.request.body.username, ctx.request.body.password, ctx, oidc)
+      return await login(ctx.request.body.username, ctx.request.body.password, ctx, oidc, accountAdapter)
     } catch (err) {
       return ctx.render('login', {
         errorMessage: err.message,
@@ -33,8 +34,8 @@ export default function loginInteractionHandler(oidc: Provider): Router {
   return router
 }
 
-export async function login(username: string, password: string, ctx: Context, oidc: Provider) {
-  const account = await Account.authenticate(username, password)
+export async function login(username: string, password: string, ctx: Context, oidc: Provider, accountAdapter: DefaultAccountAdapter) {
+  const account = await accountAdapter.authenticate(username, password)
 
   return await getTokenAndLogin(account.accountId, ctx, oidc)
 }

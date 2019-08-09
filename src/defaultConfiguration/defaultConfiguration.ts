@@ -7,16 +7,38 @@ import views from 'koa-views'
 import bodyParser from 'koa-body'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import Provider from '../core/SolidIdp'
-import RedisAdapter from './redisAdapter'
-import Account from './account'
+import RedisAdapter from './storage/redis/redisAdapter'
+import RedisAccount from './storage/redis/redisAccount'
 import confirmInteractionHandler from './handlers/confirmInteraction.handler'
 import initialInteractionHandler from './handlers/initialInteraction.handler'
 import loginInteractionHandler from './handlers/loginInteraction.handler'
 import forgotPasswordInteractionHandler from './handlers/forgotPasswordInteraction.handler'
 import registerInteractionHandler from './handlers/registerInteraction.handler'
 import resetPasswordHandler from './handlers/resetPassword.handler'
+import { Adapter, Account } from 'oidc-provider';
+import DefaultConfigAccount from './account';
+import FilesystemAccount from './storage/filesystem/filesystemAccount';
+import FilesystemAdapter from './storage/filesystem/filesystemAdapter';
 
 const debug = logger('defaultConfiguration')
+
+/**
+ * Types ================================================
+ */
+
+export interface DefaultAccountAdapter {
+  authenticate (username, password): Promise<Account>
+  create(email: string, password: string, username: string, webID: string): Promise<void>
+  changePassword(username, password): Promise<void>
+  generateForgotPassword(username): Promise<{ email: string, uuid: string }>
+  getForgotPassword(uuid: string): Promise<string>
+  deleteForgotPassword(uuid: string): Promise<void>
+}
+
+export interface SolidIDPStorage {
+  sessionAdapter: new (name: string) => Adapter
+  accountAdapter: new () => DefaultAccountAdapter
+}
 
 export interface DefaultConfigurationConfigs {
   keystore: any
@@ -24,7 +46,13 @@ export interface DefaultConfigurationConfigs {
   pathPrefix?: string
   mailConfiguration: SMTPTransport.Options
   webIdFromUsername: (username: string) => Promise<string>
+  storagePreset?: 'redis' | 'filesystem'
+  storage?: SolidIDPStorage
 }
+
+/**
+ * ================================================
+ */
 
 const handlers: ((oidc: Provider, config?: DefaultConfigurationConfigs) => Router)[] = [
   initialInteractionHandler,
@@ -37,9 +65,25 @@ const handlers: ((oidc: Provider, config?: DefaultConfigurationConfigs) => Route
 export default async function defaultConfiguration (config: DefaultConfigurationConfigs) {
   const pathPrefix = config.pathPrefix || ''
 
+  if (config.storagePreset) {
+    switch (config.storagePreset) {
+      case 'redis':
+        config.storage = {
+          sessionAdapter: RedisAdapter,
+          accountAdapter: RedisAccount
+        }
+        break;
+      case 'filesystem':
+        config.storage = {
+          sessionAdapter: FilesystemAdapter,
+          accountAdapter: FilesystemAccount
+        }
+    }
+  }
+
   const oidc = new Provider(config.issuer, {
-    adapter: RedisAdapter,
-    findAccount: Account.findById,
+    adapter: config.storage.sessionAdapter,
+    findAccount: DefaultConfigAccount.findById,
     jwks: config.keystore,
     claims: {
       openid: ['sub'],

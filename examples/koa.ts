@@ -20,7 +20,8 @@ async function init () {
     },
     webIdFromUsername: async (username: string) => {
       return `https://${username}.api.swype.io/profile/card#me`
-    }
+    },
+    storagePreset: 'redis'
   })
   const app = new Koa()
   app.use(idpRouter.routes())

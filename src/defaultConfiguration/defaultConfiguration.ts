@@ -19,7 +19,7 @@ export interface DefaultConfigurationConfigs {
   keystore: any
   issuer: string
   pathPrefix?: string
-  mailConfiguration: SMTPTransport.Options
+  mailConfiguration?: SMTPTransport.Options
   webIdFromUsername: (username: string) => Promise<string>
 }
 

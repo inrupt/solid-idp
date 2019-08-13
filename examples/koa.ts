@@ -11,13 +11,13 @@ async function init () {
     issuer: 'https://api.swype.io',
     pathPrefix: '',
     keystore,
-    mailConfiguration: {
+    mailConfiguration: (process.env.EMAIL_USER && process.env.EMAIL_PASS) ? {
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       }
-    },
+    }: undefined,
     webIdFromUsername: async (username: string) => {
       return `https://${username}.api.swype.io/profile/card#me`
     }

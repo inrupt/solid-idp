@@ -48,6 +48,6 @@
     "lint": "tslint -t stylish --project \"tsconfig.json\"",
     "mocha": "mocha --require ts-node/register test/**/*.ts",
     "test": "npm run lint && npm run mocha",
-    "copy-template": "copyfiles ./src/**/*.ejs ./dist"
+    "copy-template": "copyfiles ./src/**/*.ejs ./dist && copyfiles ./src/**/*.css ./dist"
   }
 }

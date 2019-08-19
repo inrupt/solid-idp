@@ -86,7 +86,11 @@ export default async function getFilesystemAccount(config: DefaultConfigurationC
 
     async getUser(username) {
       const webID = await config.webIdFromUsername(username)
-      return JSON.parse((await fs.readFile(this.userLocation(webID))).toString())
+      try {
+        return JSON.parse((await fs.readFile(this.userLocation(webID))).toString())
+      } catch(err) {
+        return undefined
+      }
     }
   
     async generateForgotPassword(username): Promise<{ email: string, uuid: string }> {
@@ -104,11 +108,15 @@ export default async function getFilesystemAccount(config: DefaultConfigurationC
     }
   
     async getForgotPassword(uuid: string): Promise<string> {
-      const forgotPasswordInfo = JSON.parse((await fs.readFile(this.forgotPasswordLocation(uuid))).toString())
-      if (!forgotPasswordInfo || forgotPasswordInfo.ex < new Date().getTime()) {
+      try {
+        const forgotPasswordInfo = JSON.parse((await fs.readFile(this.forgotPasswordLocation(uuid))).toString())
+        if (!forgotPasswordInfo || forgotPasswordInfo.ex < new Date().getTime()) {
+          return undefined
+        }
+        return forgotPasswordInfo.username
+      } catch (err) {
         return undefined
       }
-      return forgotPasswordInfo.username
     }
   
     async deleteForgotPassword(uuid: string): Promise<void> {

@@ -82,7 +82,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
         break;
       case 'filesystem':
         config.storage = {
-          sessionAdapter: getFilesystemAdapater(config),
+          sessionAdapter: await getFilesystemAdapater(config),
           accountAdapter: await getFilesystemAccount(config)
         }
     }

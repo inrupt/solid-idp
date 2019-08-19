@@ -5,69 +5,114 @@ import _ from 'lodash'
 import Redis from 'ioredis'
 import bcrypt from 'bcryptjs'
 import uuid from 'uuid'
+import path from 'path'
 import { Context } from 'koa';
-import { DefaultAccountAdapter } from '../../defaultConfiguration';
+import fs from 'mz/fs'
+import { DefaultAccountAdapter, DefaultConfigurationConfigs } from '../../defaultConfiguration';
 import DefaultConfigAccount from '../../account';
 
-const REDIS_URL = process.env.REDIS_URL || ''
 const SALT_ROUNDS = 10
 
-const client: Redis = new Redis(REDIS_URL, { keyPrfix: 'user' })
+export default async function getFilesystemAccount(config: DefaultConfigurationConfigs) {
+  await Promise.all([
+    fs.mkdir(path.join(config.storageData.folder, './users/users'), { recursive: true }),
+    fs.mkdir(path.join(config.storageData.folder, './users/users-by-email'), { recursive: true }),
+    fs.mkdir(path.join(config.storageData.folder, './users/forgot-password'), { recursive: true })
+  ])
+  
 
-export default class FilesystemAccount implements DefaultAccountAdapter {
 
-  async authenticate (username, password) {
-    assert(password, 'Password must be provided')
-    assert(username, 'Username must be provided')
-    const lowercased = String(username).toLowerCase()
-    const user = JSON.parse(await client.get(this.key(username)))
-    assert(user, "User does not exist")
-    assert(await bcrypt.compare(password, user.password), "Incorrect Password")
-    return new DefaultConfigAccount(user.webID)
-  }
+  return class FilesystemAccount implements DefaultAccountAdapter {
 
-  async create (email: string, password: string, username: string, webID: string): Promise<void> {
-    const curUser = await client.get(this.key(username))
-    assert(!curUser, 'User already exists.')
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
-    await client.set(this.key(username), JSON.stringify({
-      username,
-      webID,
-      email,
-      password: hashedPassword
-    }))
-  }
+    async authenticate(username, password) {
+      assert(password, 'Password must be provided')
+      assert(username, 'Username must be provided')
+      const user = await this.getUser(username)
+      assert(user, "User does not exist")
+      assert(await bcrypt.compare(password, user.hashedPassword), "Incorrect Password")
+      return new DefaultConfigAccount(user.webId)
+    }
+  
+    async create(email: string, password: string, username: string, webID: string): Promise<void> {
+      assert(!await fs.exists(this.userLocation(webID)), 'User already exists.')
+      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+      
+      await fs.writeFile(this.userLocation(webID), JSON.stringify({
+        username,
+        webId: webID,
+        email,
+        externalWebId: '',
+        hashedPassword
+      }), { flag: 'w' })
+      await fs.writeFile(this.userByEmailLocation(email), JSON.stringify({
+        id: this.userFileName(webID)
+      }), { flag: 'w' })
+    }
+  
+    async changePassword(username, password): Promise<void> {
+      const webID = await config.webIdFromUsername(username)
+      const user = await this.getUser(username)
+      user.hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+      await fs.writeFile(this.userLocation(webID), JSON.stringify(user), { flag: 'w' })
+    }
+  
+    userLocation (webID: string): string {
+      return path.join(
+        config.storageData.folder,
+        './users/users',
+        `./_key_${this.userFileName(webID)}.json`
+      )
+    }
+    userFileName(webID) {
+      const webIDUrl = new URL(webID)
+      return encodeURIComponent(`${webIDUrl.host}${webIDUrl.pathname}${webIDUrl.hash}`)
+    }
+    userByEmailLocation (email: string): string {
+      return path.join(
+        config.storageData.folder,
+        './users/users-by-email',
+        `./_key_${
+          encodeURIComponent(email)
+        }.json`
+      )
+    }
+    forgotPasswordLocation(name) {
+      return path.join(
+        config.storageData.folder,
+        './users/forgot-password',
+        `./_key_${name}.json`
+      )
+    }
 
-  async changePassword(username, password): Promise<void> {
-    const user = JSON.parse(await client.get(this.key(username)))
-    user.password = await bcrypt.hash(password, SALT_ROUNDS)
-    await client.set(this.key(username), JSON.stringify(user))
-  }
-
-  key (name: string): string {
-    return `user:${name}`
-  }
-
-  async generateForgotPassword(username): Promise<{ email: string, uuid: string }> {
-    const user = JSON.parse(await client.get(this.key(username)))
-    assert(user, 'The username does not exist.')
-    const forgotPasswordUUID = uuid.v4()
-    await client.set(this.forgotPasswordKey(forgotPasswordUUID), username, 'EX', 60 * 60 * 24)
-    return {
-      email: user.email,
-      uuid: forgotPasswordUUID
+    async getUser(username) {
+      const webID = await config.webIdFromUsername(username)
+      return JSON.parse((await fs.readFile(this.userLocation(webID))).toString())
+    }
+  
+    async generateForgotPassword(username): Promise<{ email: string, uuid: string }> {
+      const user = await this.getUser(username)
+      assert(user, 'The username does not exist.')
+      const forgotPasswordUUID = uuid.v4()
+      await fs.writeFile(this.forgotPasswordLocation(forgotPasswordUUID), JSON.stringify({
+        username,
+        ex: new Date().getTime() + (1000 * 60 * 60 * 24)
+      }), { flag: 'w' })
+      return {
+        email: user.email,
+        uuid: forgotPasswordUUID
+      }
+    }
+  
+    async getForgotPassword(uuid: string): Promise<string> {
+      const forgotPasswordInfo = JSON.parse((await fs.readFile(this.forgotPasswordLocation(uuid))).toString())
+      if (!forgotPasswordInfo || forgotPasswordInfo.ex < new Date().getTime()) {
+        return undefined
+      }
+      return forgotPasswordInfo.username
+    }
+  
+    async deleteForgotPassword(uuid: string): Promise<void> {
+      await fs.unlink(this.forgotPasswordLocation(uuid))
     }
   }
-
-  async getForgotPassword(uuid: string): Promise<string> {
-    return await client.get(this.forgotPasswordKey(uuid))
-  }
-
-  async deleteForgotPassword(uuid: string): Promise<void> {
-    await client.del(this.forgotPasswordKey(uuid))
-  }
-
-  forgotPasswordKey(name) {
-    return `forgotPassword:${name}`
-  }
-}
+} 

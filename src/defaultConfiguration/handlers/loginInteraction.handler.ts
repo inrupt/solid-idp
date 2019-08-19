@@ -22,6 +22,7 @@ export default function loginInteractionHandler(oidc: Provider, config: DefaultC
       assert(ctx.request.body.password, 'Password is required')
       return await login(ctx.request.body.username, ctx.request.body.password, ctx, oidc, accountAdapter)
     } catch (err) {
+      console.log(err)
       return ctx.render('login', {
         errorMessage: err.message,
         prefilled: {

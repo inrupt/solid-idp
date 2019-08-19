@@ -7,7 +7,6 @@ import views from 'koa-views'
 import bodyParser from 'koa-body'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import Provider from '../core/SolidIdp'
-import RedisAdapter from './storage/redis/redisAdapter'
 import RedisAccount from './storage/redis/redisAccount'
 import confirmInteractionHandler from './handlers/confirmInteraction.handler'
 import initialInteractionHandler from './handlers/initialInteraction.handler'
@@ -18,7 +17,10 @@ import resetPasswordHandler from './handlers/resetPassword.handler'
 import { Adapter, Account } from 'oidc-provider';
 import DefaultConfigAccount from './account';
 import FilesystemAccount from './storage/filesystem/filesystemAccount';
-import FilesystemAdapter from './storage/filesystem/filesystemAdapter';
+import getFilesystemAdapater from './storage/filesystem/filesystemAdapter';
+import getRedisAdapter from './storage/redis/redisAdapter';
+import getRedisAccount from './storage/redis/redisAccount';
+import getFilesystemAccount from './storage/filesystem/filesystemAccount';
 
 const debug = logger('defaultConfiguration')
 
@@ -36,8 +38,12 @@ export interface DefaultAccountAdapter {
 }
 
 export interface SolidIDPStorage {
-  sessionAdapter: new (name: string) => Adapter
-  accountAdapter: new () => DefaultAccountAdapter
+  sessionAdapter: new (name: string, config?: DefaultConfigurationConfigs) => Adapter
+  accountAdapter: new (config?: DefaultConfigurationConfigs) => DefaultAccountAdapter
+}
+
+export interface SolidIDPStorage {
+  
 }
 
 export interface DefaultConfigurationConfigs {
@@ -47,7 +53,8 @@ export interface DefaultConfigurationConfigs {
   mailConfiguration?: SMTPTransport.Options
   webIdFromUsername: (username: string) => Promise<string>
   storagePreset?: 'redis' | 'filesystem'
-  storage?: SolidIDPStorage
+  storage?: SolidIDPStorage,
+  storageData?: any 
 }
 
 /**
@@ -69,14 +76,14 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     switch (config.storagePreset) {
       case 'redis':
         config.storage = {
-          sessionAdapter: RedisAdapter,
-          accountAdapter: RedisAccount
+          sessionAdapter: getRedisAdapter(config),
+          accountAdapter: getRedisAccount(config)
         }
         break;
       case 'filesystem':
         config.storage = {
-          sessionAdapter: FilesystemAdapter,
-          accountAdapter: FilesystemAccount
+          sessionAdapter: getFilesystemAdapater(config),
+          accountAdapter: await getFilesystemAccount(config)
         }
     }
   }

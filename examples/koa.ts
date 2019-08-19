@@ -2,6 +2,7 @@ import Koa from 'koa'
 import nodemailer from 'nodemailer'
 import { defaultConfiguration } from '../src'
 import { keystore } from './keystore'
+import path from 'path'
 
 const PORT = 3000
 
@@ -21,7 +22,11 @@ async function init () {
     webIdFromUsername: async (username: string) => {
       return `https://${username}.api.swype.io/profile/card#me`
     },
-    storagePreset: 'redis'
+    storagePreset: 'filesystem',
+    storageData: {
+      redisUrl: process.env.REDIS_URL || '',
+      folder: path.join(__dirname, './.db')
+    }
   })
   const app = new Koa()
   app.use(idpRouter.routes())

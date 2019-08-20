@@ -7,20 +7,19 @@ import views from 'koa-views'
 import bodyParser from 'koa-body'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import Provider from '../core/SolidIdp'
-import RedisAccount from './storage/redis/redisAccount'
 import confirmInteractionHandler from './handlers/confirmInteraction.handler'
 import initialInteractionHandler from './handlers/initialInteraction.handler'
 import loginInteractionHandler from './handlers/loginInteraction.handler'
 import forgotPasswordInteractionHandler from './handlers/forgotPasswordInteraction.handler'
 import registerInteractionHandler from './handlers/registerInteraction.handler'
 import resetPasswordHandler from './handlers/resetPassword.handler'
-import { Adapter, Account } from 'oidc-provider';
-import DefaultConfigAccount from './account';
-import FilesystemAccount from './storage/filesystem/filesystemAccount';
-import getFilesystemAdapater from './storage/filesystem/filesystemAdapter';
-import getRedisAdapter from './storage/redis/redisAdapter';
-import getRedisAccount from './storage/redis/redisAccount';
-import getFilesystemAccount from './storage/filesystem/filesystemAccount';
+import { Adapter, Account } from 'oidc-provider'
+import DefaultConfigAccount from './account'
+import getFilesystemAdapater from './storage/filesystem/filesystemAdapter'
+import getRedisAdapter from './storage/redis/redisAdapter'
+import getRedisAccount from './storage/redis/redisAccount'
+import getFilesystemAccount from './storage/filesystem/filesystemAccount'
+import { Middleware } from 'koa'
 
 const debug = logger('defaultConfiguration')
 
@@ -29,12 +28,12 @@ const debug = logger('defaultConfiguration')
  */
 
 export interface DefaultAccountAdapter {
-  authenticate (username, password): Promise<Account>
-  create(email: string, password: string, username: string, webID: string): Promise<void>
-  changePassword(username, password): Promise<void>
-  generateForgotPassword(username): Promise<{ email: string, uuid: string }>
-  getForgotPassword(uuid: string): Promise<string>
-  deleteForgotPassword(uuid: string): Promise<void>
+  authenticate (username: string, password: string): Promise<Account>
+  create (email: string, password: string, username: string, webID: string): Promise<void>
+  changePassword (username: string, password: string): Promise<void>
+  generateForgotPassword (username: string): Promise<{ email: string, uuid: string }>
+  getForgotPassword (uuid: string): Promise<string>
+  deleteForgotPassword (uuid: string): Promise<void>
 }
 
 export interface SolidIDPStorage {
@@ -43,7 +42,7 @@ export interface SolidIDPStorage {
 }
 
 export interface SolidIDPStorage {
-  
+
 }
 
 export interface DefaultConfigurationConfigs {
@@ -54,7 +53,7 @@ export interface DefaultConfigurationConfigs {
   webIdFromUsername: (username: string) => Promise<string>
   storagePreset?: 'redis' | 'filesystem'
   storage?: SolidIDPStorage,
-  storageData?: any 
+  storageData?: any
 }
 
 /**
@@ -79,7 +78,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
           sessionAdapter: getRedisAdapter(config),
           accountAdapter: getRedisAccount(config)
         }
-        break;
+        break
       case 'filesystem':
         config.storage = {
           sessionAdapter: await getFilesystemAdapater(config),
@@ -99,7 +98,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     interactions: {
       url: async (ctx) => {
         return `${pathPrefix}/interaction/${ctx.oidc.uid}`
-      },
+      }
     },
     formats: {
       AccessToken: 'jwt'
@@ -144,7 +143,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
   const resetPasswordRouter = resetPasswordHandler(oidc, config)
   router.use(`${pathPrefix}/resetpassword`, parse, resetPasswordRouter.routes(), resetPasswordRouter.allowedMethods())
 
-  const handlerMiddlewares = []
+  const handlerMiddlewares: Middleware[] = []
   handlers.forEach(handler => {
     const handlerRoute = handler(oidc, config)
     handlerMiddlewares.push(handlerRoute.routes())

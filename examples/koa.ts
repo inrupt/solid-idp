@@ -18,7 +18,7 @@ async function init () {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       }
-    }: undefined,
+    } : undefined,
     webIdFromUsername: async (username: string) => {
       return `https://${username}.api.swype.io/profile/card#me`
     },

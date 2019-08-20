@@ -1,9 +1,9 @@
 import Provider from '../../core/SolidIdp'
 import Router from 'koa-router'
 import assert from 'assert'
-import { DefaultConfigurationConfigs } from '../defaultConfiguration';
+import { DefaultConfigurationConfigs } from '../defaultConfiguration'
 
-export default function resetPasswordHandler(oidc: Provider, config: DefaultConfigurationConfigs): Router {
+export default function resetPasswordHandler (oidc: Provider, config: DefaultConfigurationConfigs): Router {
   const router = new Router()
   const accountAdapter = new config.storage.accountAdapter()
 

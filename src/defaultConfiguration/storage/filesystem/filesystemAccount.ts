@@ -2,41 +2,37 @@
 
 import assert from 'assert'
 import _ from 'lodash'
-import Redis from 'ioredis'
 import bcrypt from 'bcryptjs'
 import uuid from 'uuid'
 import path from 'path'
-import { Context } from 'koa';
 import fs from 'mz/fs'
-import { DefaultAccountAdapter, DefaultConfigurationConfigs } from '../../defaultConfiguration';
-import DefaultConfigAccount from '../../account';
+import { DefaultAccountAdapter, DefaultConfigurationConfigs } from '../../defaultConfiguration'
+import DefaultConfigAccount from '../../account'
 
 const SALT_ROUNDS = 10
 
-export default async function getFilesystemAccount(config: DefaultConfigurationConfigs) {
+export default async function getFilesystemAccount (config: DefaultConfigurationConfigs) {
   await Promise.all([
     fs.mkdir(path.join(config.storageData.folder, './users/users'), { recursive: true }),
     fs.mkdir(path.join(config.storageData.folder, './users/users-by-email'), { recursive: true }),
     fs.mkdir(path.join(config.storageData.folder, './users/forgot-password'), { recursive: true })
   ])
-  
-
 
   return class FilesystemAccount implements DefaultAccountAdapter {
 
-    async authenticate(username, password) {
+    async authenticate (username: string, password: string) {
       assert(password, 'Password must be provided')
       assert(username, 'Username must be provided')
       const user = await this.getUser(username)
-      assert(user, "User does not exist")
-      assert(await bcrypt.compare(password, user.hashedPassword), "Incorrect Password")
+      assert(user, 'User does not exist')
+      assert(await bcrypt.compare(password, user.hashedPassword), 'Incorrect Password')
       return new DefaultConfigAccount(user.webId)
     }
-  
-    async create(email: string, password: string, username: string, webID: string): Promise<void> {
+
+    async create (email: string, password: string, username: string, webID: string): Promise<void> {
       assert(!await fs.exists(this.userLocation(webID)), 'User already exists.')
       const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
-      
+
       await fs.writeFile(this.userLocation(webID), JSON.stringify({
         username,
         webId: webID,
@@ -48,14 +44,14 @@ export default async function getFilesystemAccount(config: DefaultConfigurationC
         id: this.userFileName(webID)
       }), { flag: 'w' })
     }
-  
-    async changePassword(username, password): Promise<void> {
+
+    async changePassword (username: string, password: string): Promise<void> {
       const webID = await config.webIdFromUsername(username)
       const user = await this.getUser(username)
       user.hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
       await fs.writeFile(this.userLocation(webID), JSON.stringify(user), { flag: 'w' })
     }
-  
+
     userLocation (webID: string): string {
       return path.join(
         config.storageData.folder,
@@ -63,7 +59,7 @@ export default async function getFilesystemAccount(config: DefaultConfigurationC
         `./_key_${this.userFileName(webID)}.json`
       )
     }
-    userFileName(webID) {
+    userFileName (webID: string) {
       const webIDUrl = new URL(webID)
       return encodeURIComponent(`${webIDUrl.host}${webIDUrl.pathname}${webIDUrl.hash}`)
     }
@@ -76,7 +72,7 @@ export default async function getFilesystemAccount(config: DefaultConfigurationC
         }.json`
       )
     }
-    forgotPasswordLocation(name) {
+    forgotPasswordLocation (name: string) {
       return path.join(
         config.storageData.folder,
         './users/forgot-password',
@@ -84,16 +80,16 @@ export default async function getFilesystemAccount(config: DefaultConfigurationC
       )
     }
 
-    async getUser(username) {
+    async getUser (username: string) {
       const webID = await config.webIdFromUsername(username)
       try {
         return JSON.parse((await fs.readFile(this.userLocation(webID))).toString())
-      } catch(err) {
+      } catch (err) {
         return undefined
       }
     }
-  
-    async generateForgotPassword(username): Promise<{ email: string, uuid: string }> {
+
+    async generateForgotPassword (username: string): Promise<{ email: string, uuid: string }> {
       const user = await this.getUser(username)
       assert(user, 'The username does not exist.')
       const forgotPasswordUUID = uuid.v4()
@@ -106,8 +102,8 @@ export default async function getFilesystemAccount(config: DefaultConfigurationC
         uuid: forgotPasswordUUID
       }
     }
-  
-    async getForgotPassword(uuid: string): Promise<string> {
+
+    async getForgotPassword (uuid: string): Promise<string> {
       try {
         const forgotPasswordInfo = JSON.parse((await fs.readFile(this.forgotPasswordLocation(uuid))).toString())
         if (!forgotPasswordInfo || forgotPasswordInfo.ex < new Date().getTime()) {
@@ -118,9 +114,9 @@ export default async function getFilesystemAccount(config: DefaultConfigurationC
         return undefined
       }
     }
-  
-    async deleteForgotPassword(uuid: string): Promise<void> {
+
+    async deleteForgotPassword (uuid: string): Promise<void> {
       await fs.unlink(this.forgotPasswordLocation(uuid))
     }
   }
-} 
+}

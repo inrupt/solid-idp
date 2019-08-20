@@ -1,12 +1,12 @@
 import Provider from '../../core/SolidIdp'
 import assert from 'assert'
 import Router from 'koa-router'
-import { Context } from 'koa';
-import { InteractionResult } from 'oidc-provider';
-import { DefaultConfigurationConfigs, DefaultAccountAdapter } from '../defaultConfiguration';
+import { Context } from 'koa'
+import { InteractionResult } from 'oidc-provider'
+import { DefaultConfigurationConfigs, DefaultAccountAdapter } from '../defaultConfiguration'
 
-export default function loginInteractionHandler(oidc: Provider, config: DefaultConfigurationConfigs): Router {
-  const router = new Router()
+export default function loginInteractionHandler (oidc: Provider, config: DefaultConfigurationConfigs): Router {
+  const router = new Router<any, Context>()
   const accountAdapter = new config.storage.accountAdapter()
 
   router.get(`/login`, async (ctx, next) => {
@@ -34,13 +34,13 @@ export default function loginInteractionHandler(oidc: Provider, config: DefaultC
   return router
 }
 
-export async function login(username: string, password: string, ctx: Context, oidc: Provider, accountAdapter: DefaultAccountAdapter) {
+export async function login (username: string, password: string, ctx: Context, oidc: Provider, accountAdapter: DefaultAccountAdapter) {
   const account = await accountAdapter.authenticate(username, password)
 
-  return await getTokenAndLogin(account.accountId, ctx, oidc)
+  return getTokenAndLogin(account.accountId, ctx, oidc)
 }
 
-export async function getTokenAndLogin(accountId: string, ctx: Context, oidc: Provider) {
+export async function getTokenAndLogin (accountId: string, ctx: Context, oidc: Provider) {
   const result: InteractionResult = {
     login: {
       account: accountId,

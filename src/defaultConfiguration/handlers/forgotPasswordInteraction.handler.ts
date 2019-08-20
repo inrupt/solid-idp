@@ -2,22 +2,21 @@ import Provider from '../../core/SolidIdp'
 import Router from 'koa-router'
 import nodemailer from 'nodemailer'
 import assert from 'assert'
-import { DefaultConfigurationConfigs } from '../defaultConfiguration';
+import { DefaultConfigurationConfigs } from '../defaultConfiguration'
 import Debug from 'debug'
 
 const debug = Debug('forgotPassword')
 
 const dummyMailer = {
-  sendMail(config) {
+  sendMail (config: any) {
     debug(`Sending Mail:\nTo: ${config.to}\nFrom: ${config.from}\nSubject: ${config.subject}\n${config.html}`)
   }
 }
 
-export default function forgotPasswordInteractionHandler(oidc: Provider, config: DefaultConfigurationConfigs): Router {
+export default function forgotPasswordInteractionHandler (oidc: Provider, config: DefaultConfigurationConfigs): Router {
   const accountAdapter = new config.storage.accountAdapter()
   const mailFrom = config.mailConfiguration ? config.mailConfiguration.auth.user : 'Solid'
   const mailTransporter = (config.mailConfiguration) ? nodemailer.createTransport(config.mailConfiguration) : dummyMailer
-
 
   const router = new Router()
 
@@ -31,7 +30,7 @@ export default function forgotPasswordInteractionHandler(oidc: Provider, config:
       assert(username, 'Username required')
       const { email, uuid } = await accountAdapter.generateForgotPassword(ctx.request.body.username)
       const passwordResetLink = `${config.issuer}/${config.pathPrefix ? `${config.pathPrefix}/` : ''}resetpassword/${uuid}`
-      const mailInfo = await mailTransporter.sendMail({
+      const mailInfo = mailTransporter.sendMail({
         from: `"Solid" <${mailFrom}>`,
         to: email,
         subject: 'Reset your password',
@@ -44,7 +43,7 @@ export default function forgotPasswordInteractionHandler(oidc: Provider, config:
       return ctx.render('emailSent', {
         username
       })
-    } catch(err) {
+    } catch (err) {
       return ctx.render('forgotPassword', {
         errorMessage: err.message
       })

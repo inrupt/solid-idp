@@ -1,6 +1,5 @@
 import Provider, { ProviderConfiguration } from 'oidc-provider'
-import cors from '@koa/cors'
-import * as url from 'url'
+import cors from 'koa-cors'
 
 export default class SolidIdp extends Provider {
 

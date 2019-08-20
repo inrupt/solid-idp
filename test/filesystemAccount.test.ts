@@ -25,6 +25,6 @@ describe('Filesystem Account', () => {
 
   it('is compatible with NSS users', async () => {
     const account = await filesystemAccount.authenticate('alice', 'ABC123xyz*')
-    expect(account.claims().sub).to.equal('https://alice.localhost:7443/profile/card#me')
+    expect((await account.claims()).sub).to.equal('https://alice.localhost:8443/profile/card#me')
   })
 })

@@ -57,6 +57,6 @@
     "lint": "tslint -t stylish --project \"tsconfig.json\"",
     "mocha": "ts-mocha -p \"tsconfig.json\" test/**/*.ts",
     "test": "npm run lint && npm run mocha",
-    "copy-template": "copyfiles ./src/**/*.ejs ./dist"
+    "copy-template": "copyfiles ./src/**/*.ejs ./dist && copyfiles ./src/**/*.css ./dist"
   }
 }

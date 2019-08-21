@@ -21,7 +21,7 @@
           <h1 class="title--white">Email Sent</h1>
           <div class="login-panel">
             <div class="panel-body">
-              <form autocomplete="off" action="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/forgotpassword" method="post">
+              <form autocomplete="off" action="<%= details.pathPrefix %>/interaction/<%= details.uid %>/forgotpassword" method="post">
 
                 <div class="input-wrap">
                   <p>An email has been sent to your account with a link to reset your password.</p>
@@ -33,7 +33,7 @@
 
                 <input type="hidden" name="username" value="<%= username %>" />
 
-                <a href="<%= details.pathPrefix %>/interaction/<%= details.uuid %>/login" class="ids-link-filled">Back to Log In</a>
+                <a href="<%= details.pathPrefix %>/interaction/<%= details.uid %>/login" class="ids-link-filled">Back to Log In</a>
 
                 <hr />
                 <div class="space-between">

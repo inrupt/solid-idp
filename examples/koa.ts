@@ -2,6 +2,7 @@ import Koa from 'koa'
 import nodemailer from 'nodemailer'
 import { defaultConfiguration } from '../src'
 import { keystore } from './keystore'
+import path from 'path'
 
 const PORT = 3000
 
@@ -17,9 +18,14 @@ async function init () {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       }
-    }: undefined,
+    } : undefined,
     webIdFromUsername: async (username: string) => {
       return `https://${username}.api.swype.io/profile/card#me`
+    },
+    storagePreset: 'filesystem',
+    storageData: {
+      redisUrl: process.env.REDIS_URL || '',
+      folder: path.join(__dirname, './.db')
     }
   })
   const app = new Koa()

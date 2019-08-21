@@ -18,8 +18,9 @@
     "copyfiles": "^2.1.0",
     "mocha": "^6.1.4",
     "rimraf": "~2.6.3",
+    "ts-mocha": "^6.0.0",
     "ts-node": "^8.0.3",
-    "ts-node-dev": "^1.0.0-pre.32",
+    "ts-node-dev": "^1.0.0-pre.40",
     "tslint": "~5.15.0",
     "tslint-config-standard": "^8.0.1",
     "typescript": "^3.4.1"
@@ -27,17 +28,25 @@
   "author": "Jackson Morgan",
   "license": "MIT",
   "dependencies": {
-    "@koa/cors": "^2.2.3",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/debug": "^4.1.5",
+    "@types/got": "^9.6.5",
+    "@types/ioredis": "^4.0.15",
     "@types/koa": "^2.0.48",
+    "@types/koa-cors": "0.0.0",
     "@types/koa-router": "^7.0.40",
+    "@types/koa-views": "^2.0.3",
     "@types/nodemailer": "^6.2.1",
-    "bcrypt": "^3.0.6",
+    "@types/uuid": "^3.4.5",
+    "bcryptjs": "^2.4.3",
     "ioredis": "^4.9.0",
     "koa-body": "^4.1.0",
+    "koa-cors": "0.0.16",
     "koa-router": "^7.4.0",
     "koa-views": "^6.2.0",
+    "mz": "^2.7.0",
     "nodemailer": "^6.3.0",
-    "oidc-provider": "github:jaxoncreed/node-oidc-provider-fork",
+    "oidc-provider": "jaxoncreed/node-oidc-provider-6-custom",
     "uuid": "^3.3.2"
   },
   "scripts": {
@@ -46,7 +55,7 @@
     "watch": "tsc --watch --preserveWatchOutput -p tsconfig.json",
     "dev": "ts-node-dev --project \"tsconfig.json\" examples/koa.ts",
     "lint": "tslint -t stylish --project \"tsconfig.json\"",
-    "mocha": "mocha --require ts-node/register test/**/*.ts",
+    "mocha": "ts-mocha -p \"tsconfig.json\" test/**/*.ts",
     "test": "npm run lint && npm run mocha",
     "copy-template": "copyfiles ./src/**/*.ejs ./dist && copyfiles ./src/**/*.css ./dist"
   }

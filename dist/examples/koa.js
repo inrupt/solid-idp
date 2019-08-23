@@ -32,6 +32,9 @@ function init() {
             webIdFromUsername: (username) => __awaiter(this, void 0, void 0, function* () {
                 return `https://${username}.api.swype.io/profile/card#me`;
             }),
+            onNewUser: (username) => __awaiter(this, void 0, void 0, function* () {
+                return `https://${username}.api.swype.io/profile/card#me`;
+            }),
             storagePreset: 'filesystem',
             storageData: {
                 redisUrl: process.env.REDIS_URL || '',

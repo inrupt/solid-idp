@@ -22,6 +22,9 @@ async function init () {
     webIdFromUsername: async (username: string) => {
       return `https://${username}.api.swype.io/profile/card#me`
     },
+    onNewUser: async (username: string) => {
+      return `https://${username}.api.swype.io/profile/card#me`
+    },
     storagePreset: 'filesystem',
     storageData: {
       redisUrl: process.env.REDIS_URL || '',

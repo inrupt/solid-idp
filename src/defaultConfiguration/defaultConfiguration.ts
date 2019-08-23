@@ -51,6 +51,7 @@ export interface DefaultConfigurationConfigs {
   pathPrefix?: string
   mailConfiguration?: SMTPTransport.Options
   webIdFromUsername: (username: string) => Promise<string>
+  onNewUser: (username: string) => Promise<string>
   storagePreset?: 'redis' | 'filesystem'
   storage?: SolidIDPStorage,
   storageData?: any

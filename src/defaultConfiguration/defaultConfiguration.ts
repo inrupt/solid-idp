@@ -13,7 +13,7 @@ import loginInteractionHandler from './handlers/loginInteraction.handler'
 import forgotPasswordInteractionHandler from './handlers/forgotPasswordInteraction.handler'
 import registerInteractionHandler from './handlers/registerInteraction.handler'
 import resetPasswordHandler from './handlers/resetPassword.handler'
-import { Adapter, Account } from 'oidc-provider'
+import OidcProvider from 'oidc-provider'
 import DefaultConfigAccount from './account'
 import getFilesystemAdapater from './storage/filesystem/filesystemAdapter'
 import getRedisAdapter from './storage/redis/redisAdapter'
@@ -28,7 +28,7 @@ const debug = logger('defaultConfiguration')
  */
 
 export interface DefaultAccountAdapter {
-  authenticate (username: string, password: string): Promise<Account>
+  authenticate (username: string, password: string): Promise<OidcProvider.Account>
   create (email: string, password: string, username: string, webID: string): Promise<void>
   changePassword (username: string, password: string): Promise<void>
   generateForgotPassword (username: string): Promise<{ email: string, uuid: string }>
@@ -37,7 +37,7 @@ export interface DefaultAccountAdapter {
 }
 
 export interface SolidIDPStorage {
-  sessionAdapter: new (name: string, config?: DefaultConfigurationConfigs) => Adapter
+  sessionAdapter: new (name: string, config?: DefaultConfigurationConfigs) => OidcProvider.Adapter
   accountAdapter: new (config?: DefaultConfigurationConfigs) => DefaultAccountAdapter
 }
 

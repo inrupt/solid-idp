@@ -1,8 +1,8 @@
 import Router from 'koa-router';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { Adapter, Account } from 'oidc-provider';
+import OidcProvider from 'oidc-provider';
 export interface DefaultAccountAdapter {
-    authenticate(username: string, password: string): Promise<Account>;
+    authenticate(username: string, password: string): Promise<OidcProvider.Account>;
     create(email: string, password: string, username: string, webID: string): Promise<void>;
     changePassword(username: string, password: string): Promise<void>;
     generateForgotPassword(username: string): Promise<{
@@ -13,7 +13,7 @@ export interface DefaultAccountAdapter {
     deleteForgotPassword(uuid: string): Promise<void>;
 }
 export interface SolidIDPStorage {
-    sessionAdapter: new (name: string, config?: DefaultConfigurationConfigs) => Adapter;
+    sessionAdapter: new (name: string, config?: DefaultConfigurationConfigs) => OidcProvider.Adapter;
     accountAdapter: new (config?: DefaultConfigurationConfigs) => DefaultAccountAdapter;
 }
 export interface SolidIDPStorage {

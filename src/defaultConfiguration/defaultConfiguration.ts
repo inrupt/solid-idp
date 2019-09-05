@@ -103,6 +103,7 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     },
     formats: {
       AccessToken: 'jwt',
+      // Manually setting default because default setting is disabled when running tests
       default: 'opaque'
     },
     features: {

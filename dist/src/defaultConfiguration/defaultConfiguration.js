@@ -68,7 +68,8 @@ function defaultConfiguration(config) {
                 })
             },
             formats: {
-                AccessToken: 'jwt'
+                AccessToken: 'jwt',
+                default: 'opaque'
             },
             features: {
                 devInteractions: { enabled: false }

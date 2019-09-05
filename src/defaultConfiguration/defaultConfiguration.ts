@@ -102,7 +102,8 @@ export default async function defaultConfiguration (config: DefaultConfiguration
       }
     },
     formats: {
-      AccessToken: 'jwt'
+      AccessToken: 'jwt',
+      default: 'opaque'
     },
     features: {
       devInteractions: { enabled: false }

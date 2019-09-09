@@ -13,9 +13,9 @@ const SALT_ROUNDS = 10
 
 export default async function getFilesystemAccount (config: DefaultConfigurationConfigs) {
   await Promise.all([
-    fs.mkdir(path.join(config.storageData.folder, './users/users'), { recursive: true }),
-    fs.mkdir(path.join(config.storageData.folder, './users/users-by-email'), { recursive: true }),
-    fs.mkdir(path.join(config.storageData.folder, './users/forgot-password'), { recursive: true })
+    fs.mkdir(path.join(config.storageData.folder, './oidc/users/users'), { recursive: true }),
+    fs.mkdir(path.join(config.storageData.folder, './oidc/users/users-by-email'), { recursive: true }),
+    fs.mkdir(path.join(config.storageData.folder, './oidc/users/forgot-password'), { recursive: true })
   ])
 
   return class FilesystemAccount implements DefaultAccountAdapter {
@@ -55,7 +55,7 @@ export default async function getFilesystemAccount (config: DefaultConfiguration
     userLocation (webID: string): string {
       return path.join(
         config.storageData.folder,
-        './users/users',
+        './oidc/users/users',
         `./_key_${this.userFileName(webID)}.json`
       )
     }
@@ -66,7 +66,7 @@ export default async function getFilesystemAccount (config: DefaultConfiguration
     userByEmailLocation (email: string): string {
       return path.join(
         config.storageData.folder,
-        './users/users-by-email',
+        './oidc/users/users-by-email',
         `./_key_${
           encodeURIComponent(email)
         }.json`
@@ -75,7 +75,7 @@ export default async function getFilesystemAccount (config: DefaultConfiguration
     forgotPasswordLocation (name: string) {
       return path.join(
         config.storageData.folder,
-        './users/forgot-password',
+        './oidc/users/forgot-password',
         `./_key_${name}.json`
       )
     }

@@ -20,6 +20,7 @@ import getRedisAdapter from './storage/redis/redisAdapter'
 import getRedisAccount from './storage/redis/redisAccount'
 import getFilesystemAccount from './storage/filesystem/filesystemAccount'
 import { Middleware } from 'koa'
+import renderHandler from './handlers/renderHandler';
 
 const debug = logger('defaultConfiguration')
 
@@ -145,6 +146,10 @@ export default async function defaultConfiguration (config: DefaultConfiguration
 
   const resetPasswordRouter = resetPasswordHandler(oidc, config)
   router.use(`${pathPrefix}/resetpassword`, parse, resetPasswordRouter.routes(), resetPasswordRouter.allowedMethods())
+
+  const rh = renderHandler(oidc)
+  router.use(rh.routes())
+  router.use(rh.allowedMethods())
 
   const handlerMiddlewares: Middleware[] = []
   handlers.forEach(handler => {

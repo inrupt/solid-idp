@@ -21,9 +21,9 @@ const SALT_ROUNDS = 10;
 function getFilesystemAccount(config) {
     return __awaiter(this, void 0, void 0, function* () {
         yield Promise.all([
-            fs_1.default.mkdir(path_1.default.join(config.storageData.folder, './users/users'), { recursive: true }),
-            fs_1.default.mkdir(path_1.default.join(config.storageData.folder, './users/users-by-email'), { recursive: true }),
-            fs_1.default.mkdir(path_1.default.join(config.storageData.folder, './users/forgot-password'), { recursive: true })
+            fs_1.default.mkdir(path_1.default.join(config.storageData.folder, './oidc/users/users'), { recursive: true }),
+            fs_1.default.mkdir(path_1.default.join(config.storageData.folder, './oidc/users/users-by-email'), { recursive: true }),
+            fs_1.default.mkdir(path_1.default.join(config.storageData.folder, './oidc/users/forgot-password'), { recursive: true })
         ]);
         return class FilesystemAccount {
             authenticate(username, password) {
@@ -61,17 +61,17 @@ function getFilesystemAccount(config) {
                 });
             }
             userLocation(webID) {
-                return path_1.default.join(config.storageData.folder, './users/users', `./_key_${this.userFileName(webID)}.json`);
+                return path_1.default.join(config.storageData.folder, './oidc/users/users', `./_key_${this.userFileName(webID)}.json`);
             }
             userFileName(webID) {
                 const webIDUrl = new URL(webID);
                 return encodeURIComponent(`${webIDUrl.host}${webIDUrl.pathname}${webIDUrl.hash}`);
             }
             userByEmailLocation(email) {
-                return path_1.default.join(config.storageData.folder, './users/users-by-email', `./_key_${encodeURIComponent(email)}.json`);
+                return path_1.default.join(config.storageData.folder, './oidc/users/users-by-email', `./_key_${encodeURIComponent(email)}.json`);
             }
             forgotPasswordLocation(name) {
-                return path_1.default.join(config.storageData.folder, './users/forgot-password', `./_key_${name}.json`);
+                return path_1.default.join(config.storageData.folder, './oidc/users/forgot-password', `./_key_${name}.json`);
             }
             getUser(username) {
                 return __awaiter(this, void 0, void 0, function* () {

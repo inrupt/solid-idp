@@ -107,7 +107,8 @@ export default async function defaultConfiguration (config: DefaultConfiguration
       default: 'opaque'
     },
     features: {
-      devInteractions: { enabled: false }
+      devInteractions: { enabled: false },
+      dangerouslyEnableLocalhost: new URL(config.issuer).protocol !== 'https:'
     },
     routes: {
       authorization: `${pathPrefix}/auth`,

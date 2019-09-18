@@ -72,7 +72,8 @@ function defaultConfiguration(config) {
                 default: 'opaque'
             },
             features: {
-                devInteractions: { enabled: false }
+                devInteractions: { enabled: false },
+                dangerouslyEnableLocalhost: new URL(config.issuer).protocol !== 'https:'
             },
             routes: {
                 authorization: `${pathPrefix}/auth`,

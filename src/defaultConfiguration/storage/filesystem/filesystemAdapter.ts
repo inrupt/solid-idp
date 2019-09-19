@@ -30,7 +30,7 @@ interface Store {
 
 export default async function getFilesystemAdapater (config: DefaultConfigurationConfigs) {
   await Promise.all([
-    fs.mkdir(path.join(config.storageData.folder, './openid'), { recursive: true })
+    fs.mkdir(path.join(config.storageData.folder, './oidc/openid'), { recursive: true })
   ])
 
   return class FilesystemAdapter implements Adapter {
@@ -41,7 +41,7 @@ export default async function getFilesystemAdapater (config: DefaultConfiguratio
     }
 
     filename (id: string) {
-      return path.join(config.storageData.folder, './openid', `./_key_${encodeURIComponent(id)}.json`)
+      return path.join(config.storageData.folder, './oidc/openid', `./_key_${encodeURIComponent(id)}.json`)
     }
 
     async set (id: string, payload: any, expiresIn?: number): Promise<void> {

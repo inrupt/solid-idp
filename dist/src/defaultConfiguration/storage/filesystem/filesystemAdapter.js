@@ -30,14 +30,14 @@ function userCodeKeyFor(userCode) {
 function getFilesystemAdapater(config) {
     return __awaiter(this, void 0, void 0, function* () {
         yield Promise.all([
-            fs_1.default.mkdir(path_1.default.join(config.storageData.folder, './openid'), { recursive: true })
+            fs_1.default.mkdir(path_1.default.join(config.storageData.folder, './oidc/openid'), { recursive: true })
         ]);
         return class FilesystemAdapter {
             constructor(name) {
                 this.name = name;
             }
             filename(id) {
-                return path_1.default.join(config.storageData.folder, './openid', `./_key_${encodeURIComponent(id)}.json`);
+                return path_1.default.join(config.storageData.folder, './oidc/openid', `./_key_${encodeURIComponent(id)}.json`);
             }
             set(id, payload, expiresIn) {
                 return __awaiter(this, void 0, void 0, function* () {

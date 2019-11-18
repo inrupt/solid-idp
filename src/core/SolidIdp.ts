@@ -35,7 +35,4 @@ export default class SolidIdp extends Provider {
     })
     this.use(cors())
   }
-
-  // TODO Bring back CORS
-  // TODO PoP Token
 }

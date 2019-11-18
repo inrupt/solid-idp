@@ -54,7 +54,7 @@ export interface DefaultConfigurationConfigs {
   onNewUser: (username: string) => Promise<string>
   storagePreset?: 'redis' | 'filesystem'
   storage?: SolidIDPStorage,
-  storageData?: any
+  storageData?: any,
 }
 
 /**

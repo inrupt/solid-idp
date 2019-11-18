@@ -242,6 +242,7 @@ declare module 'oidc-provider' {
         }
         userInfo?: FeatureConfiguration
         webMessageResponseMode?: FeatureConfiguration
+        dangerouslyEnableLocalhost?: boolean
       }
       acrValues?: string[]
       audiences?: (ctx: Context, sub: string, token: string, use: 'access_token' | 'client_credentials') => boolean | undefined | string[]

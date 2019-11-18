@@ -54,7 +54,7 @@ export interface DefaultConfigurationConfigs {
   onNewUser: (username: string) => Promise<string>
   storagePreset?: 'redis' | 'filesystem'
   storage?: SolidIDPStorage,
-  storageData?: any
+  storageData?: any,
 }
 
 /**
@@ -107,7 +107,8 @@ export default async function defaultConfiguration (config: DefaultConfiguration
       default: 'opaque'
     },
     features: {
-      devInteractions: { enabled: false }
+      devInteractions: { enabled: false },
+      dangerouslyEnableLocalhost: new URL(config.issuer).protocol !== 'https:'
     },
     routes: {
       authorization: `${pathPrefix}/auth`,

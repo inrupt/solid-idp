@@ -55,6 +55,7 @@ export interface DefaultConfigurationConfigs {
   storagePreset?: 'redis' | 'filesystem'
   storage?: SolidIDPStorage,
   storageData?: any,
+  dangerouslyAllowLocalhostRedirectOnImplicitFlow?: boolean
 }
 
 /**
@@ -108,7 +109,8 @@ export default async function defaultConfiguration (config: DefaultConfiguration
     },
     features: {
       devInteractions: { enabled: false },
-      dangerouslyEnableLocalhost: new URL(config.issuer).protocol !== 'https:'
+      dangerouslyEnableLocalhost: new URL(config.issuer).protocol !== 'https:',
+      dangerouslyAllowLocalhostRedirectOnImplicitFlow: config.dangerouslyAllowLocalhostRedirectOnImplicitFlow
     },
     routes: {
       authorization: `${pathPrefix}/auth`,

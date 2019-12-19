@@ -73,7 +73,8 @@ function defaultConfiguration(config) {
             },
             features: {
                 devInteractions: { enabled: false },
-                dangerouslyEnableLocalhost: new URL(config.issuer).protocol !== 'https:'
+                dangerouslyEnableLocalhost: new URL(config.issuer).protocol !== 'https:',
+                dangerouslyAllowLocalhostRedirectOnImplicitFlow: config.dangerouslyAllowLocalhostRedirectOnImplicitFlow
             },
             routes: {
                 authorization: `${pathPrefix}/auth`,

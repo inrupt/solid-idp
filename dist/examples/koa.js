@@ -19,7 +19,7 @@ const PORT = 3000;
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
         const idpRouter = yield src_1.defaultConfiguration({
-            issuer: 'http://localhost:8080/',
+            issuer: 'http://localhost:3000/',
             pathPrefix: '',
             keystore: keystore_1.keystore,
             mailConfiguration: (process.env.EMAIL_USER && process.env.EMAIL_PASS) ? {

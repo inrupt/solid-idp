@@ -28,5 +28,6 @@ export interface DefaultConfigurationConfigs {
     storagePreset?: 'redis' | 'filesystem';
     storage?: SolidIDPStorage;
     storageData?: any;
+    dangerouslyAllowLocalhostRedirectOnImplicitFlow?: boolean;
 }
 export default function defaultConfiguration(config: DefaultConfigurationConfigs): Promise<Router<any, {}>>;

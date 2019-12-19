@@ -9,7 +9,7 @@ const PORT = 3000
 async function init () {
   // const testAccount = await nodemailer.createTestAccount()
   const idpRouter = await defaultConfiguration({
-    issuer: 'http://localhost:8080/',
+    issuer: 'http://localhost:3000/',
     pathPrefix: '',
     keystore,
     mailConfiguration: (process.env.EMAIL_USER && process.env.EMAIL_PASS) ? {

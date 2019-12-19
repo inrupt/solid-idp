@@ -1,6 +1,6 @@
 {
   "name": "solid-idp",
-  "version": "0.1.5-build3",
+  "version": "0.1.6-build2",
   "description": "The oidc component of the solid server",
   "engineStrict": true,
   "engines": {

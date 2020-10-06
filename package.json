@@ -32,7 +32,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/debug": "^4.1.5",
     "@types/got": "^9.6.9",
-    "@types/ioredis": "^4.14.9",
+    "@types/ioredis": "^4.17.4",
     "@types/koa": "^2.11.2",
     "@types/koa-cors": "0.0.0",
     "@types/koa-router": "^7.4.0",
